@@ -1,0 +1,105 @@
+//
+//  main.cpp
+//  
+//
+//  Created by Bret Jackson on 1/29/17.
+//
+//
+
+
+#include "Graphics.h"
+#include <string>
+#include <sstream>
+#include <iostream>
+#include <fstream>
+
+#include "GLSLProgram.h"
+#include "Mesh.h"
+
+using namespace glm;
+using namespace std;
+using namespace basicgraphics;
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+	// When a user presses the escape key, we set the WindowShouldClose property to true, 
+	// closing the application
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+}
+
+GLFWwindow* init() {
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
+	if (window == nullptr)
+	{
+		throw "Failed to create GLFW window";
+	}
+	glfwMakeContextCurrent(window);
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK)
+	{
+		throw "Failed to initialize GLEW";
+	}
+	int width, height;
+	glfwGetFramebufferSize(window, &width, &height);
+
+	glViewport(0, 0, width, height);
+	glfwSetKeyCallback(window, key_callback);
+	return window;
+}
+
+void wireframe() {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+}
+
+int main(int argc, char** argv)
+{
+	
+	GLFWwindow* window = init();
+
+
+	GLfloat vertices[] = {
+		// Positions         // Colors
+		0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // Bottom Right
+		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // Bottom Left
+		0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // Top 
+	};
+	GLuint indices[] = {  // Note that we start from 0!
+		0, 1, 2,   // First Triangle
+	};
+	Mesh triangle;
+	triangle.bind();
+	triangle.loadVertexData(sizeof(vertices), vertices, GL_STATIC_DRAW);
+	triangle.loadIndexData(sizeof(indices), indices, GL_STATIC_DRAW);
+	triangle.unbind();
+
+	GLSLProgram shader;
+	shader.compileShader("basic.vert");
+	shader.compileShader("basic.frag");
+	shader.link();
+
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwPollEvents();
+
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		shader.use();
+		shader.setUniform("green", (float)(sin(glfwGetTime()) / 2 + 0.5f));
+		triangle.bind();
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		triangle.unbind();
+
+
+		glfwSwapBuffers(window);
+	}
+
+	glfwTerminate();
+	return 0;
+}
