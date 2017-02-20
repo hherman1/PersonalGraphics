@@ -7,5 +7,5 @@ uniform float green;
 
 void main()
 {
-    color = vec4(vert_color, 1.0f);
+    color = vec4(vert_color.rgg, 1.0f);
 } 

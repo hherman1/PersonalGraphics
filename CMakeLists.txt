@@ -270,10 +270,17 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/src/glad/include
 )
 
+#Executable directory
+set(OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+
+SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIRECTORY}")
+SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIRECTORY}")
+
+#Add executable target
 add_executable(Basic_Graphics ${SOURCEFILES} ${HEADERFILES} ${SHADERS})
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Basic_Graphics)
-set_target_properties(Basic_Graphics PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Debug")
+set_target_properties(Basic_Graphics PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${OUTPUT_DIRECTORY})
 
 target_link_libraries(${PROJECT_NAME} ${GLFW_LIBRARY} ${ZLIB_LIBRARIES} ${ASSIMP_LIBRARY} ${SOIL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${LIBS_ALL})
 add_dependencies(${PROJECT_NAME} glfw assimp SOIL shaders)
@@ -283,8 +290,9 @@ add_dependencies(${PROJECT_NAME} glfw assimp SOIL shaders)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 
+
 add_custom_target(shaders ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:Basic_Graphics>)
+                       ${CMAKE_SOURCE_DIR}/resources ${OUTPUT_DIRECTORY})
 
 
 #copy resource files to build folder so that the executable can find them in the working directory
