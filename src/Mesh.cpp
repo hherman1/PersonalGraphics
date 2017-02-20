@@ -38,8 +38,8 @@ void Mesh::loadIndexData(GLsizeiptr size, const GLvoid * data, GLenum usage) {
 
 Mesh::~Mesh()
 {
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
-	glDeleteVertexArrays(1, &VAO);
+		glDeleteBuffers(1, &VBO);
+		glDeleteBuffers(1, &EBO);
+		glDeleteVertexArrays(1, &VAO);
 
 }

@@ -17,6 +17,7 @@
 #include "Mesh.h"
 #include <SOIL.h>
 #include "Texture.h"
+#include "Utils.h"
 
 using namespace glm;
 using namespace std;
@@ -76,11 +77,6 @@ int main(int argc, char** argv)
 		0, 1, 2,
 		2, 3, 0,// First Triangle
 	};
-	GLfloat texCoords[] = {
-		0.0f, 0.0f,  // Lower-left corner  
-		1.0f, 0.0f,  // Lower-right corner
-		0.5f, 1.0f   // Top-center corner
-	};
 	Mesh triangle;
 	triangle.bind();
 	triangle.loadVertexData(sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -94,10 +90,10 @@ int main(int argc, char** argv)
 
 	
 	//textures
-	Texture cabinet;
+	/*Texture cabinet;
 	cabinet.loadImage("container.jpg");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	cabinet.unbind();
+	cabinet.unbind();*/
 
 	Texture earth;
 	earth.loadImage("flat-earth.jpg");
@@ -113,7 +109,7 @@ int main(int argc, char** argv)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		shader.use();
+		/*shader.use();
 		shader.setUniform("green", (float)(sin(glfwGetTime()) / 2 + 0.5f));
 
 		glActiveTexture(GL_TEXTURE0);
@@ -124,14 +120,17 @@ int main(int argc, char** argv)
 		earth.bind();
 		shader.setUniform("Texture1", 1);
 
-		triangle.bind();
+		Mesh * square = utils::getSquare();
+		square->bind();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		triangle.unbind();
+		square->unbind();*/
+
+		utils::displayTexture(earth);
 
 
 		glfwSwapBuffers(window);
 	}
-
+	utils::clean();
 	glfwTerminate();
 	return 0;
 }

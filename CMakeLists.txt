@@ -19,7 +19,9 @@ set (SHADERS
 		resources/texture.vert
 		resources/texture.frag
 		resources/basic.vert
-		resources/basic.frag)
+		resources/basic.frag
+		resources/texShader.frag
+		resources/texShader.vert)
 
 file (GLOB IMAGES resources/*.jpg)
 
@@ -28,13 +30,15 @@ set (SOURCEFILES
 		src/glad/src/glad.c
 		src/GLSLProgram.cpp
 		src/Mesh.cpp
-		src/Texture.cpp)
+		src/Texture.cpp
+		src/Utils.cpp)
 
 set (HEADERFILES 
 		src/Graphics.h
 		src/GLSLProgram.h
 		src/Mesh.h
-		src/Texture.h)
+		src/Texture.h
+		src/Utils.h)
 
 #source_group("Header Files" FILES ${HEADERFILES})
 source_group("Shaders" FILES ${SHADERS})
