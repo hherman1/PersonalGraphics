@@ -6,7 +6,7 @@ namespace utils {
 
 	// The square should be accessed through getSquare, and will auto-load if not loaded. 
 	// It is a 2D square.
-	Mesh * _square = NULL;
+	shared_ptr<Mesh> _square = NULL;
 	bool square_loaded = false;
 	void loadSquare() {
 		square_loaded = true;
@@ -21,13 +21,14 @@ namespace utils {
 			0, 1, 2,
 			2, 3, 0,// First Triangle
 		};
-		_square = new Mesh();
+		Mesh * square = new Mesh();
+		_square.reset(square);
 		_square->bind();
 		_square->loadVertexData(sizeof(vertices), vertices, GL_STATIC_DRAW);
 		_square->loadIndexData(sizeof(indices), indices, GL_STATIC_DRAW);
 		_square->unbind();
 	}
-	Mesh* getSquare() {
+	shared_ptr<Mesh> getSquare() {
 		if (!square_loaded) {
 			loadSquare();
 		}
@@ -53,7 +54,7 @@ namespace utils {
 		if (!texShader_loaded) {
 			loadShader();
 		}
-		Mesh * square = getSquare();
+		shared_ptr<Mesh> square = getSquare();
 
 		texShader.use();
 

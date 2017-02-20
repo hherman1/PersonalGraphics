@@ -6,6 +6,6 @@
 #include <memory>
 namespace utils {
 	void displayTexture(Texture& tex);
-	Mesh* getSquare();
+	std::shared_ptr<Mesh> getSquare();
 	void clean();
 }

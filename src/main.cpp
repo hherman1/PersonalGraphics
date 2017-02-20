@@ -12,6 +12,7 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 #include "GLSLProgram.h"
 #include "Mesh.h"
@@ -77,6 +78,9 @@ int main(int argc, char** argv)
 		0, 1, 2,
 		2, 3, 0,// First Triangle
 	};
+	/*Vertex * Vertices = (Vertex*) vertices;
+	vector<Vertex> VerticesVec(Vertices, Vertices + 4);*/
+	//vector<Vertex> Vertices((Vertex*)vertices, (Vertex*)vertices + 4 * sizeof(Vertex));
 	Mesh triangle;
 	triangle.bind();
 	triangle.loadVertexData(sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -93,13 +97,18 @@ int main(int argc, char** argv)
 	/*Texture cabinet;
 	cabinet.loadImage("container.jpg");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	cabinet.unbind();*/
+	cabinet.unbind();
 
 	Texture earth;
 	earth.loadImage("flat-earth.jpg");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	earth.unbind();
+	earth.unbind();*/
+	Texture gorilla;
+	gorilla.loadImage("gorilla.jpg");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	gorilla.unbind();
 
 
 	while (!glfwWindowShouldClose(window))
@@ -120,13 +129,13 @@ int main(int argc, char** argv)
 		earth.bind();
 		shader.setUniform("Texture1", 1);
 
-		Mesh * square = utils::getSquare();
+		shared_ptr<Mesh> square = utils::getSquare();
 		square->bind();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		square->unbind();*/
-
-		utils::displayTexture(earth);
-
+		
+		utils::displayTexture(gorilla);
+		
 
 		glfwSwapBuffers(window);
 	}
