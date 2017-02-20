@@ -15,6 +15,8 @@
 
 #include "GLSLProgram.h"
 #include "Mesh.h"
+#include <SOIL.h>
+#include "Texture.h"
 
 using namespace glm;
 using namespace std;
@@ -64,13 +66,20 @@ int main(int argc, char** argv)
 
 
 	GLfloat vertices[] = {
-		// Positions         // Colors
-		0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // Bottom Right
-		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // Bottom Left
-		0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // Top 
+		// Positions          // Colors           // Texture Coords
+		0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
+		0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
+		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
+		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
 	};
 	GLuint indices[] = {  // Note that we start from 0!
-		0, 1, 2,   // First Triangle
+		0, 1, 2,
+		2, 3, 0,// First Triangle
+	};
+	GLfloat texCoords[] = {
+		0.0f, 0.0f,  // Lower-left corner  
+		1.0f, 0.0f,  // Lower-right corner
+		0.5f, 1.0f   // Top-center corner
 	};
 	Mesh triangle;
 	triangle.bind();
@@ -83,6 +92,20 @@ int main(int argc, char** argv)
 	shader.compileShader("basic.frag");
 	shader.link();
 
+	
+	//textures
+	Texture cabinet;
+	cabinet.loadImage("container.jpg");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	cabinet.unbind();
+
+	Texture earth;
+	earth.loadImage("flat-earth.jpg");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	earth.unbind();
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -92,6 +115,15 @@ int main(int argc, char** argv)
 
 		shader.use();
 		shader.setUniform("green", (float)(sin(glfwGetTime()) / 2 + 0.5f));
+
+		glActiveTexture(GL_TEXTURE0);
+		cabinet.bind();
+		shader.setUniform("Texture0", 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		earth.bind();
+		shader.setUniform("Texture1", 1);
+
 		triangle.bind();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		triangle.unbind();

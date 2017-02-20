@@ -274,6 +274,9 @@ CMakeFiles/
 *CMakeCache*
 *.cmake
 
+#images
+*.jpg
+
 #vs
 *.vcxproj*
 *.sln

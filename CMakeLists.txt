@@ -21,19 +21,24 @@ set (SHADERS
 		resources/basic.vert
 		resources/basic.frag)
 
+file (GLOB IMAGES resources/*.jpg)
+
 set (SOURCEFILES 
 		src/main.cpp
 		src/glad/src/glad.c
 		src/GLSLProgram.cpp
-		src/Mesh.cpp)
+		src/Mesh.cpp
+		src/Texture.cpp)
 
 set (HEADERFILES 
 		src/Graphics.h
 		src/GLSLProgram.h
-		src/Mesh.h)
+		src/Mesh.h
+		src/Texture.h)
 
 #source_group("Header Files" FILES ${HEADERFILES})
 source_group("Shaders" FILES ${SHADERS})
+source_group("Images" FILES ${IMAGES})
 
 ############################################################
 #Start of library detection
@@ -277,7 +282,7 @@ SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIRECTORY}")
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIRECTORY}")
 
 #Add executable target
-add_executable(Basic_Graphics ${SOURCEFILES} ${HEADERFILES} ${SHADERS})
+add_executable(Basic_Graphics ${SOURCEFILES} ${HEADERFILES} ${SHADERS} ${IMAGES})
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Basic_Graphics)
 set_target_properties(Basic_Graphics PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${OUTPUT_DIRECTORY})
