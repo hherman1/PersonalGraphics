@@ -265,7 +265,6 @@ deps/*
 deps/
 assimp/
 /deps/assimp/
-src/glad
 src/glm
 glew/
 glfw/
