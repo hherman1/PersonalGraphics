@@ -245,19 +245,19 @@ set(OPENGL_INCLUDE_DIRS ${OPENGL_INCLUDE_DIR})
 include_directories(${OPENGL_INCLUDE_DIRS})
 
 # GLEW
-set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/glew)
-set(CMAKE_LIBRARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/glew/lib/Release/x64)
+#set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/glew)
+#set(CMAKE_LIBRARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/glew/lib/Release/x64)
 
-find_package(GLEW REQUIRED)
-if (GLEW_FOUND)
-    include_directories(${GLEW_INCLUDE_DIRS})
-	add_definitions(${GLEW_DEFINITIONS})
-	#set(GLEW_DLL ${CMAKE_CURRENT_SOURCE_DIR}/glew/bin/Release/x64/glew32.dll)
-	set (GLEW_LIBRARIES ${CMAKE_LIBRARY_PATH}/glew32s.lib)
-	#set(GLEW_LIBRAR IES ${GLEW_LIBRARIES} ${GLEW_DLL})
-endif()
-message(${GLEW_LIBRARIES})
-message(${GLEW_INCLUDE_DIRS})
+#find_package(GLEW REQUIRED)
+#if (GLEW_FOUND)
+#    include_directories(${GLEW_INCLUDE_DIRS})
+#	add_definitions(${GLEW_DEFINITIONS})
+#	#set(GLEW_DLL ${CMAKE_CURRENT_SOURCE_DIR}/glew/bin/Release/x64/glew32.dll)
+#	set (GLEW_LIBRARIES ${CMAKE_LIBRARY_PATH}/glew32s.lib)
+#	#set(GLEW_LIBRAR IES ${GLEW_LIBRARIES} ${GLEW_DLL})
+#endif()
+#message(${GLEW_LIBRARIES})
+#message(${GLEW_INCLUDE_DIRS})
 
 ############################################################
 
@@ -313,7 +313,7 @@ add_executable(Basic_Graphics ${SOURCEFILES} ${HEADERFILES})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Basic_Graphics)
 set_target_properties(Basic_Graphics PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${OUTPUT_DIRECTORY})
 
-target_link_libraries(${PROJECT_NAME} ${GLFW_LIBRARY} ${ZLIB_LIBRARIES} ${ASSIMP_LIBRARY} ${SOIL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${LIBS_ALL})
+target_link_libraries(${PROJECT_NAME} ${GLFW_LIBRARY} ${ZLIB_LIBRARIES} ${ASSIMP_LIBRARY} ${SOIL_LIBRARY} ${OPENGL_LIBRARIES} ${LIBS_ALL})#${GLEW_LIBRARIES} ${LIBS_ALL})
 add_dependencies(${PROJECT_NAME} glfw assimp SOIL Resources)
 
 

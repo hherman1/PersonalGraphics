@@ -86,11 +86,13 @@ GLFWwindow* init() {
 		throw "Failed to create GLFW window";
 	}
 	glfwMakeContextCurrent(window);
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
-	{
-		throw "Failed to initialize GLEW";
-	}
+	//glewExperimental = GL_TRUE;
+	//if (glewInit() != GLEW_OK)
+	//{
+	//	throw "Failed to initialize GLEW";
+	//}
+	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 
