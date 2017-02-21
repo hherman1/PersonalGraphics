@@ -6,8 +6,8 @@ layout (location = 2) in vec2 vertex_tex_coords;
 
 uniform mat4 model;
 uniform mat3 normal_model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 camera_view;
+uniform mat4 camera_projection;
 
 out vec3 vert_color;
 out vec3 Normal;
@@ -17,7 +17,7 @@ out vec3 WorldPos;
 void main()
 {
 	WorldPos = vec3(model * vec4(position,1));
-    gl_Position = projection * view * model * vec4(position,1);
+    gl_Position = camera_projection * camera_view * model * vec4(position,1);
 	Normal = normal_model * vert_normal;
 	TexCoord = vertex_tex_coords;
 

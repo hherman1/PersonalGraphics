@@ -145,7 +145,7 @@ namespace utils {
 		return _indexed_cube;
 	}
 
-	shared_ptr<Mesh> _cube = NULL;
+	shared_ptr<ArrayMesh> _cube = NULL;
 	void loadCube() {
 		GLfloat vertices[] = {
 			// Positions           // Normals           // Texture Coords
@@ -191,15 +191,14 @@ namespace utils {
 			-1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
 			-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 		};
-		Mesh * cube = new Mesh();
-		cube->bind();
-		cube->loadVertexData(sizeof(vertices), vertices, GL_STATIC_DRAW);
-		cube->setElements(36);
-		cube->unbind();
-		_cube.reset(cube);
+		_cube.reset(new ArrayMesh());
+		_cube->bind();
+		_cube->loadVertexData(sizeof(vertices), vertices, GL_STATIC_DRAW);
+		_cube->setCount(36);
+		_cube->unbind();
 	}
 	// use glDrawArrays
-	shared_ptr<Mesh> getCube() {
+	shared_ptr<ArrayMesh> getCube() {
 		if (_cube == NULL)
 		{
 			loadCube();
@@ -221,9 +220,18 @@ namespace utils {
 	}
 	void setLight(GLSLProgram& shader, Light light) {
 		shader.setUniform("light.position", light.position);
+		shader.setUniform("light.direction", light.direction);
+
 		shader.setUniform("light.ambient", light.ambient);
 		shader.setUniform("light.diffuse", light.diffuse);
 		shader.setUniform("light.specular", light.specular);
+		
+		shader.setUniform("light.constant", light.constant);
+		shader.setUniform("light.linear", light.linear);
+		shader.setUniform("light.quadratic", light.quadratic);
+
+		shader.setUniform("light.cutOff", light.cutOff);
+
 	}
 
 }

@@ -6,17 +6,17 @@ using namespace std;
 
 GLSLProgram depthShader;
 
-DepthTexture::DepthTexture()
+DepthTexture::DepthTexture():
+	_framebuffer(),
+	_texture()
 {
-	_framebuffer.reset(new Framebuffer());
-	_texture.reset(new Texture());
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 800, 600, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _texture->id(), 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _texture.id(), 0);
 	glDrawBuffer(GL_NONE);
 	Framebuffer::validate();
 	Framebuffer::unbind();
@@ -43,8 +43,8 @@ void DepthTexture::useDepthShader()
 // should probably clear after binding to clear previous depth texture.
 void DepthTexture::bind()
 {
-	_framebuffer->bind();
-	_texture->bind();
+	_framebuffer.bind();
+	_texture.bind();
 }
 
 void DepthTexture::unbind()
@@ -53,7 +53,7 @@ void DepthTexture::unbind()
 	Texture::unbind();
 }
 
-std::shared_ptr<Texture> DepthTexture::texture()
+Texture& DepthTexture::texture()
 {
 	return _texture;
 }

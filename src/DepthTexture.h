@@ -14,11 +14,11 @@ public:
 	void useDepthShader();
 	void bind();
 	static void unbind();
-	std::shared_ptr<Texture> texture();
+	Texture& texture();
 	void setShaderTransform(glm::mat4 transform);
 protected:
-	std::shared_ptr<Framebuffer> _framebuffer = NULL;
-	std::shared_ptr<Texture> _texture = NULL;
+	Framebuffer _framebuffer;
+	Texture _texture;
 
 };
 

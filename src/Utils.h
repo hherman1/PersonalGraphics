@@ -8,7 +8,7 @@
 namespace utils {
 	void displayTexture(Texture& tex);
 	std::shared_ptr<Mesh> getSquare();
-	std::shared_ptr<Mesh> getCube();
+	std::shared_ptr<ArrayMesh> getCube();
 	void clean();
 	mat3 normal_model(mat4 model);
 	void setMaterial(basicgraphics::GLSLProgram & shader, Material mat);

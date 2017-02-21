@@ -42,7 +42,9 @@ set (SOURCEFILES
 		src/DepthTexture.cpp
 		src/Spotlight.cpp
 		src/Camera.cpp
-		src/Light.cpp)
+		src/Light.cpp
+		src/Importer.cpp
+		src/StandardShader.cpp)
 
 set (HEADERFILES 
 		src/Graphics.h
@@ -55,7 +57,9 @@ set (HEADERFILES
 		src/DepthTexture.h
 		src/Spotlight.h
 		src/Camera.h
-		src/Light.h)
+		src/Light.h
+		src/Importer.h
+		src/StandardShader.h)
 
 #source_group("Header Files" FILES ${HEADERFILES})
 source_group("Shaders" FILES ${SHADERS})

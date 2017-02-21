@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "GLSLProgram.h"
+#include "StandardShader.h"
 #include "Mesh.h"
 #include <SOIL.h>
 #include "Texture.h"
@@ -128,11 +129,12 @@ int main(int argc, char** argv)
 	/*Vertex * Vertices = (Vertex*) vertices;
 	vector<Vertex> VerticesVec(Vertices, Vertices + 4);*/
 	//vector<Vertex> Vertices((Vertex*)vertices, (Vertex*)vertices + 4 * sizeof(Vertex));
-	Mesh triangle;
+	ArrayMesh triangle;
 	triangle.bind();
 	triangle.loadVertexData(sizeof(vertices), vertices, GL_STATIC_DRAW);
 	triangle.loadIndexData(sizeof(indices), indices, GL_STATIC_DRAW);
 	triangle.unbind();
+	
 
 	GLSLProgram unlitShader;
 	unlitShader.compileShader("unlit.vert");
@@ -186,13 +188,11 @@ int main(int argc, char** argv)
 	Material mat = {
 		vec3(1.0f, 0.5f, 0.31f),vec3(1.0f, 0.5f, 0.31f),vec3(0.5f, 0.5f, 0.5f),32.0f
 	};
+	
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
-
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		float seconds = clock.tick();
 		rotation += 180*seconds ;
@@ -202,14 +202,12 @@ int main(int argc, char** argv)
 
 
 		shader.use();
-		shader.setUniform("projection", camera.proj());
-		shader.setUniform("view", camera.view());
-		shader.setUniform("view_pos", camera.pos);
-		utils::setLight(shader, light);
-		utils::setMaterial(shader, mat);
+
+		standard_shader::setCamera(shader, camera);
+		standard_shader::setLight(shader, light);
+		standard_shader::setMaterial(shader, mat);
+
 		gorilla.bind();
-		/*depthTexture.useDepthShader();
-		depthTexture.bind();*/
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -221,30 +219,21 @@ int main(int argc, char** argv)
 			//model = glm::rotate(model, (float)radians(rotation), glm::vec3(1.0f, 1.0f, 0.0f));
 			model = scale(model, vec3(0.5f, 0.5f, 0.5f));
 
-			shader.setUniform("model", model);
-			shader.setUniform("normal_model", utils::normal_model(model));
-			shader.setUniform("object_color", vec3(1, 0, 0));
-			//depthTexture.setShaderTransform(light.proj_view() * model);
+			standard_shader::setModel(shader, model);
 
-			auto cube = utils::getCube();
-			cube->bind();
-			glDrawArrays(GL_TRIANGLES, 0, cube->elements());
-			//glDrawElements(GL_TRIANGLES, cube->elements(), GL_UNSIGNED_INT, 0);
-			cube->unbind();
+
+			shared_ptr<ArrayMesh> cube = utils::getCube();
+			standard_shader::drawArrayMesh(*cube);
 		}
 
 
-		auto cube = utils::getCube();
+		shared_ptr<ArrayMesh> cube = utils::getCube();
 		mat4 model;
 		model = translate(model, vec3(0, -2, 0));
 		model = scale(model, vec3(4.f, 0.25f, 4.f));
-		shader.setUniform("model", model);
-		shader.setUniform("normal_model", utils::normal_model(model));
-		//shader.setUniform("transform", light.proj_view() * model);
-		//Texture::unbind();
-		cube->bind();
-		glDrawArrays(GL_TRIANGLES, 0,cube->elements());
-		cube->unbind();
+		standard_shader::setModel(shader,model);
+		standard_shader::drawArrayMesh(*cube);
+
 
 		unlitShader.use();
 		unlitShader.setUniform("projection", camera.proj());
@@ -252,22 +241,19 @@ int main(int argc, char** argv)
 		unlitShader.setUniform("object_color", vec3(1, 1, 1));
 
 		{
-			auto cube = utils::getCube();
+			shared_ptr<ArrayMesh> cube = utils::getCube();
 			cube->bind();
 			model = mat4(1.0);
 			model = translate(model, light.position);
 			model = scale(model, vec3(0.25));
 			unlitShader.setUniform("model", model);
 			unlitShader.setUniform("object_color", light.specular);
-			glDrawArrays(GL_TRIANGLES, 0, cube->elements());
+			cube->draw();
 			cube->unbind();
 		}
 
-		//depthTexture.unbind();
 
-		//utils::displayTexture(*(depthTexture.texture()));
-
-		
+		utils::displayTexture(gorilla);
 		
 
 		glfwSwapBuffers(window);

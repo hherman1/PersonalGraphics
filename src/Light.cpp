@@ -3,10 +3,7 @@
 
 
 Light::Light(glm::vec3 _pos) :
-	position(_pos),
-	ambient(1.f),
-	diffuse(1.f),
-	specular(1.f)
+	position(_pos)
 {
 }
 

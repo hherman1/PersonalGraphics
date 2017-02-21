@@ -39,8 +39,20 @@ void Mesh::loadIndexData(GLsizeiptr size, const GLvoid * data, GLenum usage) {
 void Mesh::setElements(int e) {
 	_elements = e;
 }
+void Mesh::setCount(int e)
+{
+	_count = e;
+}
+void Mesh::draw()
+{
+}
 int Mesh::elements() {
 	return _elements;
+}
+
+int Mesh::count()
+{
+	return _count;
 }
 
 Mesh::~Mesh()
@@ -50,3 +62,47 @@ Mesh::~Mesh()
 		glDeleteVertexArrays(1, &VAO);
 
 }
+
+IndexedMesh::IndexedMesh():
+	Mesh()
+{
+}
+//MUST BIND FIRST!
+void IndexedMesh::draw() {
+	draw(GL_TRIANGLES, GL_UNSIGNED_INT);
+}
+// if you want to control the call
+void IndexedMesh::draw(GLenum mode, GLenum type) {
+	glDrawElements(mode, elements(), type, 0);
+}
+
+ArrayMesh::ArrayMesh():
+	Mesh()
+{
+}
+
+void ArrayMesh::draw()
+{
+	draw(GL_TRIANGLES);
+}
+void ArrayMesh::draw(GLenum mode)
+{
+	glDrawArrays(mode, 0, count());
+}
+
+void Material::setMaterial(basicgraphics::GLSLProgram & shader)
+{
+	shader.setUniform("material.ambient", ambient);
+	shader.setUniform("material.diffuse", diffuse);
+	shader.setUniform("material.specular", specular);
+	shader.setUniform("material.shininess", shininess);
+}
+// BROKEN FUNCTION DO NOT USE
+//void Material::setMaterial(string name, basicgraphics::GLSLProgram & shader)
+//{
+//	
+//	shader.setUniform((name + ".ambient").c_str(), ambient);
+//	shader.setUniform("material.diffuse", diffuse);
+//	shader.setUniform("material.specular", specular);
+//	shader.setUniform("material.shininess", shininess);
+//}
