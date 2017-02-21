@@ -12,7 +12,7 @@
 //	glDrawArrays(mode, 0, count());
 //}
 using namespace basicgraphics;
-
+using namespace std;
 namespace standard_shader {
 	
 	void setCamera(GLSLProgram& shader, Camera camera) {
@@ -59,6 +59,17 @@ namespace standard_shader {
 		mesh.bind();
 		glDrawElements(GL_TRIANGLES, mesh.elements(), GL_UNSIGNED_INT, 0);
 		mesh.unbind();
+	}
+	void drawIndexedGPUReference(IndexedGPUMeshReference m) {
+		gl_mesh::bind(m.meshReference);
+		glDrawElements(GL_TRIANGLES, m.elements, GL_UNSIGNED_INT, 0);
+		gl_mesh::unbind();
+	}
+	
+	void drawIndexedMeshes(vector<IndexedGPUMeshReference> meshes) {
+		for (auto i = meshes.begin(); i < meshes.end();i++) {
+			drawIndexedGPUReference(*i);
+		}
 	}
 }
 

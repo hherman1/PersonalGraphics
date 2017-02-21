@@ -14,8 +14,36 @@ struct Material {
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 	float shininess;
-	void setMaterial(basicgraphics::GLSLProgram& shader);
-	//void setMaterial(string name, basicgraphics::GLSLProgram & shader);
+};
+struct GPUMeshReference {
+	GLuint VAO;
+	GLuint VBO;
+	GLuint EBO;
+};
+struct IndexedGPUMeshReference {
+	int elements;
+	GPUMeshReference meshReference;
+};
+
+namespace gl_mesh {
+	void unbind();
+	void loadVertexData(GLsizeiptr size, const GLvoid * data, GLenum usage);
+	void loadIndexData(GLsizeiptr size, const GLvoid * data, GLenum usage);
+	GPUMeshReference makeMesh();
+	void deleteMesh(GPUMeshReference meshReference);
+	void bind(GPUMeshReference mesh);
+}
+
+class IndexedMeshes {
+public:
+	std::vector<IndexedGPUMeshReference> indexedGPUReferences;
+
+	IndexedMeshes();
+	IndexedMeshes(IndexedMeshes&& move) = delete;
+	IndexedMeshes(const IndexedMeshes& that) = delete;
+	IndexedMeshes& operator=(const IndexedMeshes&) = delete;
+
+	~IndexedMeshes();
 };
 
 class Mesh {
@@ -37,15 +65,13 @@ public:
 	void loadIndexData(GLsizeiptr size, const GLvoid * data, GLenum usage);
 	void setElements(int e);
 	void setCount(int e);
-	virtual void draw();
 protected:
 	int _elements;
 	int _count;
-	GLuint VAO;
-	GLuint VBO;
-	GLuint EBO;
+	GPUMeshReference mesh_reference;
 
 };
+
 class IndexedMesh : public Mesh {
 public:
 	explicit IndexedMesh();
@@ -55,8 +81,6 @@ public:
 
 	int count() = delete;
 	int setCount(int e) = delete;
-	virtual void draw() override;
-	void draw(GLenum mode, GLenum type);
 };
 class ArrayMesh : public Mesh {
 public:
@@ -67,6 +91,4 @@ public:
 
 	int elements() = delete;
 	int setElements(int e) = delete;
-	virtual void draw() override;
-	void draw(GLenum mode);
 };

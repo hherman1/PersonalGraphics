@@ -25,6 +25,7 @@
 #include "DepthTexture.h"
 #include "Spotlight.h"
 #include "Camera.h"
+#include "Importer.h"
 
 using namespace glm;
 using namespace std;
@@ -158,6 +159,7 @@ int main(int argc, char** argv)
 	// Note that we're translating the scene in the reverse direction of where we want to move
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
+	shared_ptr<IndexedMeshes> sphere = importer::loadModel("sphere.obj");
 	
 	
 	DepthTexture::compileShader();
@@ -226,6 +228,18 @@ int main(int argc, char** argv)
 			standard_shader::drawArrayMesh(*cube);
 		}
 
+		{
+			mat4 model;
+			model = mat4(1.f);
+			standard_shader::setModel(shader, model);
+			standard_shader::setMaterial(shader, {
+				vec3(0.24725,0.1995,0.0745),
+				vec3(0.75164,0.60648,0.22648),
+				vec3(0.628281,0.555802,0.366065),
+				32.f
+			});
+			standard_shader::drawIndexedMeshes(sphere->indexedGPUReferences);
+		}
 
 		shared_ptr<ArrayMesh> cube = utils::getCube();
 		mat4 model;
@@ -248,12 +262,11 @@ int main(int argc, char** argv)
 			model = scale(model, vec3(0.25));
 			unlitShader.setUniform("model", model);
 			unlitShader.setUniform("object_color", light.specular);
-			cube->draw();
-			cube->unbind();
+			standard_shader::drawArrayMesh(*cube);
 		}
 
 
-		utils::displayTexture(gorilla);
+		//utils::displayTexture(gorilla);
 		
 
 		glfwSwapBuffers(window);

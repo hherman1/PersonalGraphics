@@ -28,6 +28,8 @@ namespace standard_shader {
 	void setModel(basicgraphics::GLSLProgram & shader, mat4 model);
 	void drawModel(basicgraphics::GLSLProgram& shader,Model model);
 	void drawIndexedMesh(IndexedMesh& mesh);
+	void drawIndexedGPUReference(IndexedGPUMeshReference m);
+	void drawIndexedMeshes(std::vector<IndexedGPUMeshReference> meshes);
 	void drawArrayMesh(ArrayMesh& mesh);
 };
 

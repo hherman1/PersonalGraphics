@@ -4,37 +4,65 @@ using namespace std;
 /*
 * Is automatically bound when you instantiate it. 
 */
+
+namespace gl_mesh {
+	GPUMeshReference makeMesh() {
+		GPUMeshReference mesh;
+		glGenVertexArrays(1, &mesh.VAO);
+		glGenBuffers(1, &mesh.VBO);
+		glGenBuffers(1, &mesh.EBO);
+
+		glBindVertexArray(mesh.VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
+
+		//Describes the data being sent through layout(0)
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0); // vertices
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // colors
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat))); // U,V coords for textures
+		glEnableVertexAttribArray(2);
+		return mesh;
+	}
+	void deleteMesh(GPUMeshReference meshReference) {
+		glDeleteBuffers(1, &meshReference.VBO);
+		glDeleteBuffers(1, &meshReference.EBO);
+		glDeleteVertexArrays(1, &meshReference.VAO);
+	}
+
+	void bind(GPUMeshReference meshReference) {
+		glBindVertexArray(meshReference.VAO);
+	}
+	void unbind() {
+		glBindVertexArray(0);
+	}
+	void loadVertexData(GLsizeiptr size, const GLvoid * data, GLenum usage) {
+		glBufferData(GL_ARRAY_BUFFER, size, data, usage);
+	}
+	void loadIndexData(GLsizeiptr size, const GLvoid * data, GLenum usage) {
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, usage);
+	}
+
+}
+
+
 Mesh::Mesh()
 {
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-
-	bind();
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-	//Describes the data being sent through layout(0)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0); // vertices
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // colors
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat))); // U,V coords for textures
-	glEnableVertexAttribArray(2);
-
+	mesh_reference = gl_mesh::makeMesh();
 }
 void Mesh::bind() {
-	glBindVertexArray(VAO);
+	gl_mesh::bind(mesh_reference);
 }
 void Mesh::unbind() {
-	glBindVertexArray(0);
+	gl_mesh::unbind();
 }
 //Should bind before calling. 
 void Mesh::loadVertexData(GLsizeiptr size, const GLvoid * data, GLenum usage) {
-	glBufferData(GL_ARRAY_BUFFER, size, data, usage);
+	gl_mesh::loadVertexData(size,data,usage);
 }
 void Mesh::loadIndexData(GLsizeiptr size, const GLvoid * data, GLenum usage) {
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, usage);
+	gl_mesh::loadIndexData(size, data, usage);
 }
 void Mesh::setElements(int e) {
 	_elements = e;
@@ -42,9 +70,6 @@ void Mesh::setElements(int e) {
 void Mesh::setCount(int e)
 {
 	_count = e;
-}
-void Mesh::draw()
-{
 }
 int Mesh::elements() {
 	return _elements;
@@ -57,23 +82,12 @@ int Mesh::count()
 
 Mesh::~Mesh()
 {
-		glDeleteBuffers(1, &VBO);
-		glDeleteBuffers(1, &EBO);
-		glDeleteVertexArrays(1, &VAO);
-
+	gl_mesh::deleteMesh(mesh_reference);
 }
 
 IndexedMesh::IndexedMesh():
 	Mesh()
 {
-}
-//MUST BIND FIRST!
-void IndexedMesh::draw() {
-	draw(GL_TRIANGLES, GL_UNSIGNED_INT);
-}
-// if you want to control the call
-void IndexedMesh::draw(GLenum mode, GLenum type) {
-	glDrawElements(mode, elements(), type, 0);
 }
 
 ArrayMesh::ArrayMesh():
@@ -81,28 +95,13 @@ ArrayMesh::ArrayMesh():
 {
 }
 
-void ArrayMesh::draw()
+IndexedMeshes::IndexedMeshes()
 {
-	draw(GL_TRIANGLES);
-}
-void ArrayMesh::draw(GLenum mode)
-{
-	glDrawArrays(mode, 0, count());
 }
 
-void Material::setMaterial(basicgraphics::GLSLProgram & shader)
+IndexedMeshes::~IndexedMeshes()
 {
-	shader.setUniform("material.ambient", ambient);
-	shader.setUniform("material.diffuse", diffuse);
-	shader.setUniform("material.specular", specular);
-	shader.setUniform("material.shininess", shininess);
+	for (auto i = indexedGPUReferences.begin();i < indexedGPUReferences.end(); i++) {
+		gl_mesh::deleteMesh((*i).meshReference);
+	}
 }
-// BROKEN FUNCTION DO NOT USE
-//void Material::setMaterial(string name, basicgraphics::GLSLProgram & shader)
-//{
-//	
-//	shader.setUniform((name + ".ambient").c_str(), ambient);
-//	shader.setUniform("material.diffuse", diffuse);
-//	shader.setUniform("material.specular", specular);
-//	shader.setUniform("material.shininess", shininess);
-//}

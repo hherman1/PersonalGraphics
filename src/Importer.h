@@ -4,10 +4,12 @@
 #include <assimp\Importer.hpp>
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
-class Importer
-{
-public:
-	Importer();
-	~Importer();
-};
+#include <vector>
+#include <memory>
+
+namespace importer {
+
+
+	std::shared_ptr<IndexedMeshes> loadModel(string path);
+}
 
