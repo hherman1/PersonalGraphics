@@ -276,6 +276,7 @@ CMakeFiles/
 
 #images
 *.jpg
+*.png
 
 #vs
 *.vcxproj*

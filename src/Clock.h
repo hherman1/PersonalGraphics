@@ -1,7 +1,11 @@
 #pragma once
 
-#include <chrono>
 #include <ctime>
+#include <GLFW\glfw3.h>
+
+//Originally implemented with <chrono>'s std::steady_clock
+//However, that clock is very inconsistent and causes very odd rendering. Avoid it!
+// Uses glfwGetTime() instead.
 namespace basicgraphics {
 
 	class Clock
@@ -10,11 +14,12 @@ namespace basicgraphics {
 		Clock();
 		~Clock();
 
-		std::chrono::milliseconds tick(); // provides time since last tick
+		double tick(); // provides time since last tick
 
 	protected:
 		bool firstTick;
-		std::chrono::time_point<std::chrono::steady_clock> time;
+		double time; // use glfwGetTime() instead
+		
 	};
 
 

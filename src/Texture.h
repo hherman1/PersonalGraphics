@@ -7,10 +7,13 @@ class Texture
 {
 public:
 	Texture();
+	static void bind(GLuint texname);
 	void bind();
-	void unbind();
+	static void unbind();
 	int width();
 	Texture(Texture&& move) = delete;
+	Texture(const Texture& that) = delete;
+
 
 	int height();
 

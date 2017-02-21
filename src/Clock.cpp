@@ -4,7 +4,7 @@
 namespace basicgraphics {
 
 	Clock::Clock() :
-		time(std::chrono::steady_clock::now()),
+		time(glfwGetTime()),
 		firstTick(true)
 	{
 	}
@@ -13,16 +13,16 @@ namespace basicgraphics {
 	Clock::~Clock()
 	{
 	}
-	std::chrono::milliseconds Clock::tick()
+	double Clock::tick()
 	{
 		auto old = time;
-		time = std::chrono::steady_clock::now();
+		time = glfwGetTime();
 		if (firstTick) {
 			firstTick = false;
-			return std::chrono::milliseconds(0);
+			return 0;
 		}
 		else {
-			return std::chrono::duration_cast<std::chrono::milliseconds>(time - old);
+			return time - old;
 		}
 	}
 }

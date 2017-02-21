@@ -1,5 +1,6 @@
 #include "Mesh.h"
 
+using namespace std;
 /*
 * Is automatically bound when you instantiate it. 
 */
@@ -34,6 +35,12 @@ void Mesh::loadVertexData(GLsizeiptr size, const GLvoid * data, GLenum usage) {
 }
 void Mesh::loadIndexData(GLsizeiptr size, const GLvoid * data, GLenum usage) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, usage);
+}
+void Mesh::setElements(int e) {
+	_elements = e;
+}
+int Mesh::elements() {
+	return _elements;
 }
 
 Mesh::~Mesh()

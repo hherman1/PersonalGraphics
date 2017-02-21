@@ -8,8 +8,12 @@ Texture::Texture()
 	glGenTextures(1, &_texture);
 	bind();
 }
+void Texture::bind(GLuint texname)
+{
+	glBindTexture(GL_TEXTURE_2D, texname);
+}
 void Texture::bind() {
-	glBindTexture(GL_TEXTURE_2D, _texture);
+	Texture::bind(id());
 }
 void Texture::unbind() {
 	glBindTexture(GL_TEXTURE_2D, 0);

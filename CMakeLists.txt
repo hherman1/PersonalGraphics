@@ -21,7 +21,11 @@ set (SHADERS
 		resources/basic.vert
 		resources/basic.frag
 		resources/texShader.frag
-		resources/texShader.vert)
+		resources/texShader.vert
+		resources/depth.vert
+		resources/depth.frag
+		resources/unlit.vert
+		resources/unlit.frag)
 
 file (GLOB IMAGES resources/*.jpg)
 
@@ -31,14 +35,26 @@ set (SOURCEFILES
 		src/GLSLProgram.cpp
 		src/Mesh.cpp
 		src/Texture.cpp
-		src/Utils.cpp)
+		src/Utils.cpp
+		src/Clock.cpp
+		src/Framebuffer.cpp
+		src/DepthTexture.cpp
+		src/Spotlight.cpp
+		src/Camera.cpp
+		src/Light.cpp)
 
 set (HEADERFILES 
 		src/Graphics.h
 		src/GLSLProgram.h
 		src/Mesh.h
 		src/Texture.h
-		src/Utils.h)
+		src/Utils.h
+		src/Clock.h
+		src/Framebuffer.h
+		src/DepthTexture.h
+		src/Spotlight.h
+		src/Camera.h
+		src/Light.h)
 
 #source_group("Header Files" FILES ${HEADERFILES})
 source_group("Shaders" FILES ${SHADERS})
