@@ -41,6 +41,8 @@ protected:
 	void drawBoard(basicgraphics::GLSLProgram & shader);
 
 	void drawNet(basicgraphics::GLSLProgram & shader);
+	Texture trump_texture;
+	Texture white_texture;
 
 	Material table_mat = {
 		vec3(0.0,0.1,0.06),

@@ -7,6 +7,13 @@ using namespace std;
 
 Table::Table()
 {
+	trump_texture.bind();
+	trump_texture.loadImage("trump.png");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	trump_texture.unbind();
+	white_texture.bind();
+	white_texture.whiteTexture();
 }
 
 
@@ -17,6 +24,7 @@ Table::~Table()
 void Table::draw(basicgraphics::GLSLProgram & shader)
 {
 	drawWall(shader);
+	standard_shader::setTexture(shader, white_texture);
 	drawBoard(shader);
 	drawNet(shader);
 	drawLegs(shader);
@@ -72,11 +80,7 @@ void Table::drawBoard(basicgraphics::GLSLProgram & shader)
 
 void Table::drawWall(basicgraphics::GLSLProgram & shader)
 {
-    Texture trump_texture;
-    trump_texture.loadImage("trump.png");
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    trump_texture.unbind();
+
     
     standard_shader::setTexture(shader, trump_texture);
     //ping_pong::drawFloor(shader);
