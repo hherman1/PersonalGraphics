@@ -5,9 +5,9 @@ https://learnopengl.com/
 We used learnopengl a LOT for guidance. They provide tutorials on how to implement just about everything we implemented here, 
 from shadows to shaders, textures, materials and so on. This would be really hard to implement without them. 
 
-Right now the system is kind of rigid. It only supports a single light and doesnt support textures.
+Right now the system is kind of rigid. It only supports a single light and a single texture.
 
-The scene and interactions all happen in main.cpp, by preference.
+The scene and interactions (nearly) all happen in main.cpp, by preference.
 
 
 
@@ -18,6 +18,7 @@ The scene and interactions all happen in main.cpp, by preference.
 * Space: Launch the ball.
 * Play against yourself by bouncing off the wall
 * Or off the floor! (or other walls)
+* Your volleys are automatically tracked!
 
 ##Building
 
