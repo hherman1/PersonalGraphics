@@ -153,11 +153,11 @@ int main(int argc, char** argv)
 	depthShader.link();
 
 	
-	Texture gorilla;
-	gorilla.loadImage("gorilla.jpg");
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	gorilla.unbind();
+//	Texture gorilla;
+//	gorilla.loadImage("gorilla.jpg");
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//	gorilla.unbind();
 
 	shared_ptr<IndexedMeshes> sphere = importer::loadModel("sphere.obj");
 	shared_ptr<IndexedMeshes> cylinder = importer::loadModel("cylinder.obj");
@@ -218,23 +218,59 @@ int main(int argc, char** argv)
 		//gorilla.bind();
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        
+        {
+            mat4 net = mat4(1.f);
+            net = translate(net, vec3(0.0f, 0.0f,  0.0f));
+            vec3 diffuse;
+            shared_ptr<ArrayMesh> cube;
+        
+            for(float i = -(TABLE_WIDTH/2) + 0.1; i < (TABLE_WIDTH/2) - 0.1 ; i = i + 0.02){
 
-		/*
-		for (int i = 0; i < 10; i++) {
-			mat4 model;
-			model = translate(model, cubePositions[i]);
-			//model = glm::rotate(model, (float)radians(rotation), glm::vec3(1.0f, 1.0f, 0.0f));
-			model = scale(model, vec3(0.5f, 0.5f, 0.5f));
-
-			standard_shader::setModel(shader, model);
-
-
-			shared_ptr<ArrayMesh> cube = utils::getCube();
-			standard_shader::drawArrayMesh(*cube);
-		}
-		*/
-
+                mat4 net_string = mat4(1.f);
+                net_string = translate(net_string, vec3(i, 0.18f, 0.0f));
+                net_string = scale(net_string, vec3(0.00125f, 0.05f, 0.00125f));
+                standard_shader::setModel(shader, net * net_string);
+                
+                if(i < -(TABLE_WIDTH/2) + 0.1 || i > (TABLE_WIDTH/2) - 0.12){
+                    diffuse = vec3(0.0f, 0.0f, 0.0f);
+                } else {
+                    diffuse = vec3(1.0f, 1.0f, 1.0f);
+                }
+                
+                standard_shader::setMaterial(shader, {
+                    diffuse,
+                    diffuse,
+                    vec3(0.01),
+                    0.5f * 128
+                });
+                cube = utils::getCube();
+                standard_shader::drawArrayMesh(*cube);
+            }
+            
+            for(float x = 0.13f; x < 0.23; x = x + 0.02){
+                
+                mat4 model_make = mat4(1.f);
+                model_make = translate(model_make, vec3(0.0f, x, 0.0f));
+                model_make = scale(model_make, vec3((TABLE_WIDTH/2)-0.1, 0.00125f, 0.00125f));
+                standard_shader::setModel(shader, net * model_make);
+                if(x < 0.14f || x > 0.22){
+                    diffuse = vec3(0.0f, 0.0f, 0.0f);
+                } else {
+                    diffuse = vec3(1.0f, 1.0f, 1.0f);
+                }
+                standard_shader::setMaterial(shader, {
+                    diffuse,
+                    diffuse,
+                    vec3(0.01),
+                    0.5f * 128
+                });
+                cube = utils::getCube();
+                standard_shader::drawArrayMesh(*cube);
+            }
+        }
 
 		
 		vec3 oldPos = paddle.pos;
