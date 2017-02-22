@@ -7,7 +7,7 @@ from shadows to shaders, textures, materials and so on. This would be really har
 
 Right now the system is kind of rigid. It only supports a single light and a single texture.
 
-The scene and interactions all happen in main.cpp, by preference.
+The scene and interactions (nearly) all happen in main.cpp, by preference.
 
 
 
