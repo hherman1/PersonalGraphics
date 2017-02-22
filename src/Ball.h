@@ -4,7 +4,7 @@
 #include "GLSLProgram.h"
 #include "Importer.h"
 #include "StandardShader.h"
-#include "PingPong.h"
+#include "Table.h"
 
 
 #define GRAVITY (9.8f/3)

@@ -261,8 +261,8 @@ int main(int argc, char** argv)
 				ball.dir.z *= -1;
 
 			}
-			ball.dir += (paddleChange/seconds)*vec3(0.6,0,0.4f);
-			ball.dir.y += 0.1*length(paddleChange)/seconds;
+			ball.dir += (paddleChange/seconds)*vec3(0.6,0,0.3f);
+			ball.dir.y += 0.05*length(paddleChange)/seconds;
 
 			ball.pos.z = paddle.pos.z - 0.15;
 
@@ -336,10 +336,7 @@ int main(int argc, char** argv)
 		//draw 
 		paddle.draw(depthShader);
 		ball.draw(depthShader);
-		ping_pong::drawTable(depthShader);
 		table.draw(depthShader);
-		ping_pong::drawNet(depthShader);
-		ping_pong::drawWall(depthShader);
 		ping_pong::drawFloor(depthShader);
 
 		//ping_pong::drawRoomWalls(depthShader);
@@ -358,11 +355,9 @@ int main(int argc, char** argv)
 		standard_shader::setTexture(shader, white_texture);
 		//utils::displayTexture(white_texture);
 
-		ping_pong::drawNet(shader);
 		paddle.draw(shader);
 		ball.draw(shader);
-		ping_pong::drawTable(shader);
-		ping_pong::drawWall(shader);
+		table.draw(shader);
 
 		standard_shader::setTexture(shader, wood_texture);
 		ping_pong::drawFloor(shader);
