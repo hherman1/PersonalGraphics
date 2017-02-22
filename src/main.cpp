@@ -233,10 +233,14 @@ int main(int argc, char** argv)
 
 		
 		paddle.draw(shader);
+		vec3 oldPos = paddle.pos;
 		paddle.move(vec2(mouseScreenDiff.x,-mouseScreenDiff.y));
 		mouseScreenDiff = vec2(0);
 		//paddle.pos = paddle.pos + vec3(0.1*seconds);
 		ball.update(seconds);
+		if (ballHitPaddle(ball.pos, oldPos, paddle.pos)) {
+			ball.launch();
+		}
 		if (keys[GLFW_KEY_SPACE])
 			ball.launch();
 		ball.draw(shader);
