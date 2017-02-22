@@ -239,7 +239,13 @@ int main(int argc, char** argv)
 		//paddle.pos = paddle.pos + vec3(0.1*seconds);
 		ball.update(seconds);
 		if (ballHitPaddle(ball.pos, oldPos, paddle.pos)) {
-			ball.launch();
+			vec3 paddleDiff = paddle.pos - oldPos;
+			ball.pos.z = paddle.pos.z + BALL_RADIUS;
+			if (dot(paddleDiff, vec3(ball.dir.x,0,ball.dir.z)) < 0) {
+				ball.dir.z *= -1;
+			}
+			ball.dir += paddleDiff;
+
 		}
 		if (keys[GLFW_KEY_SPACE])
 			ball.launch();
