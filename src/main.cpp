@@ -153,11 +153,11 @@ int main(int argc, char** argv)
 	depthShader.link();
 
 	
-	Texture gorilla;
+	/*Texture gorilla;
 	gorilla.loadImage("gorilla.jpg");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	gorilla.unbind();
+	gorilla.unbind();*/
 
 	shared_ptr<IndexedMeshes> sphere = importer::loadModel("sphere.obj");
 	shared_ptr<IndexedMeshes> cylinder = importer::loadModel("cylinder.obj");
