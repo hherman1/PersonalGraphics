@@ -31,7 +31,12 @@ glm::vec3 closestPoint(glm::vec3 & start, glm::vec3 & end, glm::vec3 &pt) {
 
 		// The point falls within the segment.  Normalize direction,
 		// divide t by the length of direction.
-		return start + direction * t / glm::length2(direction);
+		if (length2(direction) > 0) {
+			return start + direction * t / glm::length2(direction);
+		}
+		else {
+			return start;
+		}
 
 	}
 	else {
