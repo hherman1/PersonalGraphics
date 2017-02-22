@@ -94,19 +94,22 @@ float lineDistance(vec3 & start, vec3 & end, vec3 &pt);
 
 bool ping_pong::ballHitPaddle(vec3 & ballCurrent,vec3 & ballPrev, vec3 & paddlePrev,vec3 & paddleCurrent) {
 	//return lineDistance(paddlePrev, paddleCurrent, vec3(ballPos.x,0,ballPos.z)) < BALL_RADIUS + PADDLE_RADIUS;
+	bool result = false;
 	vec3 ballCurFixed(ballCurrent.x, 0, ballCurrent.z);
 	vec3 ballPreFixed(ballPrev.x, 0, ballPrev.z);
-	if(utils::bounded(ballCurrent.z,paddleCurrent.z,paddlePrev.z) 
-		|| utils::bounded(ballPrev.z, paddleCurrent.z, paddlePrev.z)) {
-		return lineDistance(paddlePrev, paddleCurrent, ballCurFixed) < BALL_RADIUS + PADDLE_RADIUS;
+	if(utils::bounded(ballCurrent.z,paddleCurrent.z,paddlePrev.z)) {
+		result = result || lineDistance(paddlePrev, paddleCurrent, ballCurFixed) < BALL_RADIUS + PADDLE_RADIUS;
+	}
+	if (utils::bounded(ballPrev.z, paddleCurrent.z, paddlePrev.z)) {
+		result = result || lineDistance(paddlePrev, paddleCurrent, ballPreFixed) < BALL_RADIUS + PADDLE_RADIUS;
 	}
 
 	if ((ballPrev.z - paddleCurrent.z) * (ballCurrent.z - paddleCurrent.z) < 0) {
 		vec3 changeDir = normalize(ballCurFixed - ballPreFixed);
 		vec3 compPoint = changeDir* (paddleCurrent.z - ballPreFixed.z) + ballPreFixed;
-		return (length(compPoint - paddleCurrent)) < BALL_RADIUS + PADDLE_RADIUS;
+		result = result || (length(compPoint - paddleCurrent)) < BALL_RADIUS + PADDLE_RADIUS;
 	}
-	return false;
+	return result;
 	//if (length(paddlePrev - paddleCurrent) < THRESHOLD ) {
 	//	return lineDistance(ballPreFixed, ballCurFixed, paddleCurrent) < BALL_RADIUS + PADDLE_RADIUS;
 	//}
