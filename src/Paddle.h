@@ -14,7 +14,7 @@ public:
 	void move(glm::vec2 diff);
 	~Paddle();
 	void draw(basicgraphics::GLSLProgram& shader);
-	glm::vec2 pos;
+	glm::vec3 pos;
 	float getAngle();
 protected:
 
