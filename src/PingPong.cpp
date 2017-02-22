@@ -87,7 +87,7 @@ bool ping_pong::ballHitPaddle(vec3 & ballCurrent,vec3 & ballPrev, vec3 & paddleP
 		result = result || lineDistance(paddlePrev, paddleCurrent, ballPreFixed) < BALL_RADIUS + PADDLE_RADIUS;
 	}
 
-	if ((ballPrev.z - paddleCurrent.z) * (ballCurrent.z - paddleCurrent.z) < 0) {
+	if ((ballPrev.z - paddleCurrent.z+BALL_RADIUS) * (ballCurrent.z - paddleCurrent.z+BALL_RADIUS) < 0) {
 		vec3 changeDir = normalize(ballCurFixed - ballPreFixed);
 		vec3 compPoint = changeDir* (paddleCurrent.z - ballPreFixed.z) + ballPreFixed;
 		result = result || (length(compPoint - paddleCurrent)) < BALL_RADIUS + PADDLE_RADIUS;

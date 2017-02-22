@@ -262,7 +262,7 @@ int main(int argc, char** argv)
 
 			}
 			ball.dir += (paddleChange/seconds)*vec3(0.6,0,0.3f);
-			ball.dir.y += 0.05*length(paddleChange)/seconds;
+			ball.dir.y += 0.05*(length(paddleChange) / seconds + length(ball.dir));
 
 			ball.pos.z = paddle.pos.z - 0.15;
 
