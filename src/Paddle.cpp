@@ -5,18 +5,18 @@ using namespace basicgraphics;
 using namespace glm;
 
 Paddle::Paddle() :
-	pos(-0.5, 0.25)
+	pos(-0.5, 0,0.25)
 {
 	cylinder = importer::loadModel("cylinder.obj");
 }
 void Paddle::move(vec2 diff) {
-	pos += diff;
-	pos = glm::clamp(pos, vec2(TABLE_LEFT, 0), vec2(TABLE_RIGHT, TABLE_FRONT));
+	pos += vec3(diff.x,0,diff.y);
+	pos = glm::clamp(pos, vec3(TABLE_LEFT,0, 0), vec3(TABLE_RIGHT,0, TABLE_FRONT));
 }
 float Paddle::getAngle() {
 	//have paddle rotate
-	vec3 lookAt(0, TABLE_BACK / 2, 0);
-	vec3 face = normalize(lookAt - vec3(pos, 0));
+	vec3 lookAt(0, 0, TABLE_BACK / 2);
+	vec3 face = normalize(lookAt - pos);
 	float angle = acos(dot(face, vec3(0, 1, 0)));
 	if (cross(face, vec3(0, 1, 0)).z < 0) {
 		angle = -angle;
@@ -29,7 +29,7 @@ void Paddle::draw(GLSLProgram& shader) {
 
 		float angle = getAngle();
 		mat4 model = mat4(1.f);
-		model = translate(model, vec3(pos.x,PADDLE_ELEVATION,pos.y));
+		model = translate(model, vec3(pos.x,PADDLE_ELEVATION,pos.z));
 		model = rotate(model, angle, vec3(0, 1, 0));
 
 
