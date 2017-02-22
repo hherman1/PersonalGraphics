@@ -332,7 +332,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_custom_target(Resources ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/resources ${OUTPUT_DIRECTORY}
-					   SOURCES ${IMAGES} ${SHADERS} ${MODELS})
+					   SOURCES ${IMAGES} ${SHADERS} ${MODELS} README.md)
 
 #add_custom_target(RESOURCES SOURCES ${IMAGES} ${SHADERS} ${MODELS})
 

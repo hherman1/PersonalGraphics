@@ -234,6 +234,18 @@ int main(int argc, char** argv)
 			standard_shader::drawArrayMesh(*cube);
 		}
 		*/
+		if (keys[GLFW_KEY_A]) {
+			light.position.x -= 1 * seconds;
+		}
+		if (keys[GLFW_KEY_D]) {
+			light.position.x += 1 * seconds;
+		}
+		if (keys[GLFW_KEY_W]) {
+			light.position.z -= 1 * seconds;
+		}
+		if (keys[GLFW_KEY_S]) {
+			light.position.z += 1 * seconds;
+		}
 
 
 		
