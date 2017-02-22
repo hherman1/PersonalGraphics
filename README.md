@@ -19,3 +19,7 @@ Space: Launch the ball.
 ##Building
 
 This should build just like any other project. If it doesnt build when configuring with a build directory, it might work when using the source directory as a build dir. 
+
+## Browsing Source
+
+A lot of the files in `src/` are unused. `CMakeLists.txt` lists all the used files.
