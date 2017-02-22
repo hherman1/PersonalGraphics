@@ -25,11 +25,74 @@ void ping_pong::drawWall(GLSLProgram & shader) {
 void ping_pong::drawTable(GLSLProgram & shader) {
 		shared_ptr<ArrayMesh> cube = utils::getCube();
 		mat4 model;
-		model = translate(model, vec3(0, 0, 0));
+		model = translate(model, vec3(0, TABLE_HEIGHT, 0));
 		model = scale(model, vec3(TABLE_WIDTH / 2, TABLE_DEPTH / 2, TABLE_LENGTH / 2));
 		standard_shader::setModel(shader, model);
 		standard_shader::setMaterial(shader, table_mat);
 		standard_shader::drawArrayMesh(*cube);
+}
+
+
+// does not include texture, set texture before call.
+void ping_pong::drawFloor(GLSLProgram & shader) {
+	//textured floor
+	{
+		//square has default size 2 (each side is length 2)
+		auto cube = utils::getCube();
+		mat4 model(1.f);
+		model = rotate(model, radians(90.f), vec3(1, 0, 0));
+		model = scale(model, vec3(FLOOR_TILE_SIZE / 2,FLOOR_TILE_SIZE/2, FLOOR_DEPTH / 2));
+		standard_shader::setMaterial(shader, {
+			vec3(1.f),
+			vec3(1.f),//vec3(1.f,0.8f,0),
+			vec3(0.7f),
+			32
+		});
+		// render floor before centering so that the back left corner is 0,0
+		mat4 center = translate(mat4(1.f),vec3(FLOOR_TILE_SIZE/2,0,FLOOR_TILE_SIZE/2));
+		center = translate(center, vec3(-FLOOR_WIDTH / 2, 0, -N_FLOOR_TILES_Z*FLOOR_TILE_SIZE / 2)); // center whole floor
+		
+		for (int x = 0; x < N_FLOOR_TILES_X; x++) {
+			for (int z = 0; z < N_FLOOR_TILES_Z; z++) {
+				mat4 translation = translate(center, vec3(x*FLOOR_TILE_SIZE, 0, z*FLOOR_TILE_SIZE)); // tile correctly
+				standard_shader::setModel(shader, translation * model);
+				standard_shader::drawArrayMesh(*cube);
+			}
+		}
+
+	}
+}
+void ping_pong::drawRoomWalls(basicgraphics::GLSLProgram & shader) {
+	auto cube = utils::getCube();
+	standard_shader::setMaterial(shader, {
+		vec3(1.f),
+		vec3(1.f),//vec3(1.f,0.8f,0),
+		vec3(0.7f),
+		32
+	});
+
+	//back wall
+	mat4 model(1.f);
+	model = translate(model, vec3(0, ROOM_WALL_HEIGHT / 2, FLOOR_BACK));
+	model = scale(model, vec3(FLOOR_WIDTH / 2, ROOM_WALL_HEIGHT / 2,0.1));
+	standard_shader::setModel(shader, model);
+	standard_shader::drawArrayMesh(*cube);
+
+	//left wall
+	model = mat4(1.f);
+	model = translate(model, vec3(FLOOR_LEFT, ROOM_WALL_HEIGHT / 2, 0));
+	model = rotate(model, radians(90.f), vec3(0, 1, 0));
+	model = scale(model, vec3(FLOOR_LENGTH / 2, ROOM_WALL_HEIGHT / 2, 0.1));
+	standard_shader::setModel(shader, model);
+	standard_shader::drawArrayMesh(*cube);
+
+	//right wall
+	model = mat4(1.f);
+	model = translate(model, vec3(FLOOR_RIGHT, ROOM_WALL_HEIGHT / 2, 0));
+	model = rotate(model, radians(90.f), vec3(0, 1, 0));
+	model = scale(model, vec3(FLOOR_LENGTH / 2, ROOM_WALL_HEIGHT / 2, 0.1));
+	standard_shader::setModel(shader, model);
+	standard_shader::drawArrayMesh(*cube);
 }
 
 void ping_pong::drawNet(GLSLProgram & shader)
@@ -117,10 +180,20 @@ bool ping_pong::ballHitPaddle(vec3 & ballCurrent,vec3 & ballPrev, vec3 & paddleP
 }
 bool ping_pong::ballHitWall(vec3 & ballCurrent, vec3 & ballPrev)
 {
+	return (ping_pong::ballHitWall(ballCurrent, ballPrev, vec3(TABLE_LEFT, 0, TABLE_BACK), vec3(TABLE_RIGHT, WALL_TOP, TABLE_BACK),vec3(0,0,1)));
+
 	return (ballCurrent.z < TABLE_BACK && ballPrev.z > TABLE_BACK)
 		&& (utils::bounded(vec3(ballCurrent.x, ballCurrent.y, 0),
 			vec3(TABLE_LEFT, 0, 0),
 			vec3(TABLE_RIGHT, WALL_TOP, 0)));
+}
+bool ping_pong::ballHitWall(vec3 & ballCurrent, vec3 & ballPrev,vec3 wallMin, vec3 wallMax, vec3 wallNorm)
+{
+	if (dot(ballCurrent - wallMax, wallNorm) * dot(ballPrev - wallMax, wallNorm) < 0) {
+		vec3 proj = (ballCurrent - wallNorm*ballCurrent) + (wallNorm * wallMax);//closestPoint(wallMin, wallMax, ballCurrent);
+		return (utils::bounded(proj,wallMin,wallMax));
+	}
+	return false;
 }
 bool ping_pong::ballHitNet(vec3 & ballCurrent, vec3 & ballPrev)
 {

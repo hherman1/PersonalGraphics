@@ -33,6 +33,8 @@ namespace standard_shader {
 	void drawIndexedMesh(IndexedMesh& mesh);
 	void drawIndexedGPUReference(IndexedGPUMeshReference m);
 	void drawIndexedMeshes(std::vector<IndexedGPUMeshReference> meshes);
+	void setShadowMap(basicgraphics::GLSLProgram & shader, Texture & shadowMap);
+	void setTexture(basicgraphics::GLSLProgram & shader, Texture & texture);
 	void drawArrayMesh(ArrayMesh& mesh);
 	void setSpotightMatrices(basicgraphics::GLSLProgram & shader, Spotlight l);
 	//need to unbind and reset viewport after

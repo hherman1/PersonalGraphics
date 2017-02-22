@@ -5,7 +5,7 @@
 #include "Importer.h"
 #include "PingPong.h"
 
-#define PADDLE_ELEVATION 0.25f
+#define PADDLE_ELEVATION (0.25f + TABLE_TOP)
 #define PADDLE_RADIUS 0.1f
 #define PADDLE_DEPTH 0.02f
 class Paddle

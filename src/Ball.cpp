@@ -33,20 +33,28 @@ void Ball::draw(basicgraphics::GLSLProgram & shader)
 	standard_shader::drawIndexedMeshes(_sphere->indexedGPUReferences);
 }
 
-bool Ball::shouldBounce() {
+bool Ball::shouldBounceTable() {
 	return (pos.y < TABLE_TOP + BALL_RADIUS)
 		&& (pos.x < TABLE_RIGHT && pos.x > TABLE_LEFT)
 		&& (pos.z < TABLE_FRONT && pos.z > TABLE_BACK);
 }
+bool Ball::shouldBounceFloor() {
+	return (pos.y < FLOOR_TOP);
+}
 void Ball::update(float seconds)
 {
 	dir = dir + vec3(0, -GRAVITY*seconds,0);
+	vec3 prev_prev_pos = prev_pos;
 	prev_pos = pos;
 	pos = pos + (seconds*dir) +  dir * (0.5f * seconds * seconds);
-	if (shouldBounce()) {
+	if (shouldBounceTable()) {
 		pos.y = TABLE_TOP + BALL_RADIUS;
 		dir *= vec3(0.95f,-0.9f,0.98f);
 		//dir.y = dir.y * (-0.9f);
+	}
+	else if (shouldBounceFloor()) {
+		pos.y = FLOOR_TOP + BALL_RADIUS;
+		dir *= vec3(0.95f, -0.9f, 0.98f);
 	}
 }
 

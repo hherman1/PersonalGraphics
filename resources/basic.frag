@@ -38,6 +38,7 @@ uniform Light light;
 
 uniform vec3 camera_view_pos;
 uniform sampler2D shadowMap;
+uniform sampler2D _texture;
 
 vec3 calcLight() {
     vec3 ambient = material.ambient * light.ambient;
@@ -79,5 +80,8 @@ void main()
 	if( shadowTexPos.z - bias > closestDepth) {
 		shadow = 0.1;
 	}
-	color = shadow * vec4(calcLight(),1);
+	if(shadowTexPos.z > 1) {
+		shadow = 1;
+	}
+	color = shadow * vec4(calcLight(),1) * texture(_texture,TexCoord);
 } 

@@ -43,6 +43,11 @@ void Texture::loadImage(string filename) {
 	glGenerateMipmap(GL_TEXTURE_2D);
 	SOIL_free_image_data(image);
 }
+void Texture::whiteTexture() {
+	//Texture tex;
+	char pixel[3] = { 255,255,255 };
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+}
 
 
 Texture::~Texture()

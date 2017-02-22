@@ -21,6 +21,8 @@ public:
 	GLuint id();
 
 	void loadImage(std::string filename);
+	//sets the texture to be a plain white texture. useful for untextured objects. 
+	void whiteTexture();
 	~Texture();
 protected:
 	int _width, _height;

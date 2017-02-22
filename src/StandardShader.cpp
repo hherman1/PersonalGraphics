@@ -71,6 +71,18 @@ namespace standard_shader {
 			drawIndexedGPUReference(*i);
 		}
 	}
+
+	void setShadowMap(basicgraphics::GLSLProgram & shader, Texture & shadowMap) {
+		glActiveTexture(GL_TEXTURE0);
+		shadowMap.bind();
+		shader.setUniform("shadowMap", 0);
+	}
+	void setTexture(basicgraphics::GLSLProgram & shader, Texture & texture) {
+		glActiveTexture(GL_TEXTURE1);
+		texture.bind();
+		shader.setUniform("_texture", 1);
+	}
+
 }
 
 void standard_shader::setSpotightMatrices(GLSLProgram & shader, Spotlight l)

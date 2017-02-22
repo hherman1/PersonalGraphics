@@ -14,8 +14,8 @@ public:
 	glm::vec3 specular = glm::vec3(1.f);
 
 	float constant = 1.f;
-	float linear = 0.09;
-	float quadratic = 0.032;
+	float linear = 0.09;//0.001f;
+	float quadratic = 0.032;//0.00032;
 
 	float cutOff = -1; // Point light
 };

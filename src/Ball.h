@@ -4,6 +4,7 @@
 #include "GLSLProgram.h"
 #include "Importer.h"
 #include "StandardShader.h"
+#include "PingPong.h"
 
 
 #define GRAVITY (9.8f/3)
@@ -23,7 +24,8 @@ public:
 
 
 protected:
-	bool shouldBounce();
+	bool shouldBounceTable();
+	bool shouldBounceFloor();
 
 	std::shared_ptr<IndexedMeshes> _sphere;
 };

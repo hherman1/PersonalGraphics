@@ -153,11 +153,11 @@ int main(int argc, char** argv)
 	depthShader.link();
 
 	
-//	Texture gorilla;
-//	gorilla.loadImage("gorilla.jpg");
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//	gorilla.unbind();
+	Texture gorilla;
+	gorilla.loadImage("gorilla.jpg");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	gorilla.unbind();
 
 	shared_ptr<IndexedMeshes> sphere = importer::loadModel("sphere.obj");
 	shared_ptr<IndexedMeshes> cylinder = importer::loadModel("cylinder.obj");
@@ -183,15 +183,23 @@ int main(int argc, char** argv)
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};	
-	Spotlight light(vec3(0.5, 1, 0.5), vec3(0, 0, 0));
-	light.ambient = vec3(0.2f, 0.2f, 0.2f);
+	Spotlight light(vec3(0.5, 1+TABLE_TOP, 0.5), vec3(0, 0, 0));
+	light.ambient = vec3(0.2f);
 	light.diffuse = vec3(1.f); // Let's darken the light a bit to fit the scene
 	light.specular = vec3(1.0f, 1.0f, 1.0f);
-	Camera camera(vec3(0, 1, 2), vec3(0, 0, 0.25), (float)w_width / (float)w_height);
+	Camera camera(vec3(0, 1+TABLE_TOP, 2.25), vec3(0, TABLE_TOP, 0.25), (float)w_width / (float)w_height);
 
 	Material mat = {
 		vec3(1.0f, 0.5f, 0.31f),vec3(1.0f, 0.5f, 0.31f),vec3(0.5f, 0.5f, 0.5f),32.0f
 	};
+
+	Texture white_texture;
+	white_texture.whiteTexture();
+	Texture wood_texture;
+	wood_texture.loadImage("wood2.jpg");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	wood_texture.unbind();
 
 	vec3 ball_pos;
 	
@@ -209,6 +217,7 @@ int main(int argc, char** argv)
 
 		//Debug mode only.
 		//camera.pos = 3.f * aim.front;
+		//camera.pos.y += TABLE_TOP + 1;
 
 
 		shader.use();
@@ -252,7 +261,7 @@ int main(int argc, char** argv)
 				ball.dir.z *= -1;
 
 			}
-			ball.dir += (paddleChange/seconds)*vec3(0.1,0,1.f);
+			ball.dir += (paddleChange/seconds)*vec3(0.6,0,0.4f);
 			ball.dir.y += 0.1*length(paddleChange)/seconds;
 
 			ball.pos.z = paddle.pos.z - 0.15;
@@ -271,9 +280,42 @@ int main(int argc, char** argv)
 		}
 		//wall hit?
 		if (ping_pong::ballHitWall(ball.pos,ball.prev_pos)) {
-			ball.dir.z = 1;
-			ball.dir.z *= 1.5; //more fun this way
+			ball.dir.z *= -0.9;
 			ball.pos.z = TABLE_BACK + BALL_RADIUS;
+		}
+#define ROOM_WALL_DAMPENER 0.5f
+		//back room wall hit?
+		if (ping_pong::ballHitWall(ball.pos, ball.prev_pos,
+			vec3(FLOOR_LEFT, 0, FLOOR_BACK),
+			vec3(FLOOR_RIGHT, ROOM_WALL_HEIGHT, FLOOR_BACK),
+			vec3(0, 0, 1))) {
+			ball.dir.z *= -ROOM_WALL_DAMPENER;
+			ball.pos.z = FLOOR_BACK + BALL_RADIUS;
+		}
+		//"front room wall" hit?
+		if (ping_pong::ballHitWall(ball.pos, ball.prev_pos,
+			vec3(FLOOR_LEFT, 0, FLOOR_FRONT),
+			vec3(FLOOR_RIGHT, ROOM_WALL_HEIGHT, FLOOR_FRONT),
+			vec3(0, 0, 1))) {
+			ball.dir.z *= -ROOM_WALL_DAMPENER;
+			ball.pos.z = FLOOR_FRONT - BALL_RADIUS;
+		}
+		// left room wall?
+		//bool test = utils::bounded(vec3(-3, 0.5, 1), vec3(-3, 0, 3), vec3(-3, 4, -3));
+		if (ping_pong::ballHitWall(ball.pos, ball.prev_pos,
+			vec3(FLOOR_LEFT, 0, FLOOR_BACK),
+			vec3(FLOOR_LEFT, ROOM_WALL_HEIGHT, FLOOR_FRONT),
+			vec3(1, 0, 0))) {
+			ball.dir.x *= -ROOM_WALL_DAMPENER;
+			ball.pos.x = FLOOR_LEFT + BALL_RADIUS;
+		}
+		//right room wall?
+		if (ping_pong::ballHitWall(ball.pos, ball.prev_pos,
+			vec3(FLOOR_RIGHT, 0, FLOOR_BACK),
+			vec3(FLOOR_RIGHT, ROOM_WALL_HEIGHT, FLOOR_FRONT),
+			vec3(1, 0, 0))) {
+			ball.dir.x *= -ROOM_WALL_DAMPENER;
+			ball.pos.x = FLOOR_RIGHT - BALL_RADIUS;
 		}
 		//other messages
 		{
@@ -298,6 +340,9 @@ int main(int argc, char** argv)
 		table.draw(depthShader);
 		ping_pong::drawNet(depthShader);
 		ping_pong::drawWall(depthShader);
+		ping_pong::drawFloor(depthShader);
+
+		//ping_pong::drawRoomWalls(depthShader);
 
 
 
@@ -309,15 +354,21 @@ int main(int argc, char** argv)
 		/*shader.setUniform("camera_view", light.view());
 		shader.setUniform("camera_projection", light.proj());*/
 		standard_shader::setSpotightMatrices(shader, light);
-		glActiveTexture(GL_TEXTURE0);
-		depthTexture.texture().bind();
-		shader.setUniform("shadowMap", 0);
+		standard_shader::setShadowMap(shader, depthTexture.texture());
+		standard_shader::setTexture(shader, white_texture);
+		//utils::displayTexture(white_texture);
 
 		ping_pong::drawNet(shader);
 		paddle.draw(shader);
 		ball.draw(shader);
 		ping_pong::drawTable(shader);
 		ping_pong::drawWall(shader);
+
+		standard_shader::setTexture(shader, wood_texture);
+		ping_pong::drawFloor(shader);
+
+		standard_shader::setTexture(shader, white_texture);
+		ping_pong::drawRoomWalls(shader);
 
 		//utils::displayTexture(depthTexture.texture());
 		//Light
