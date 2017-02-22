@@ -45,7 +45,7 @@ void Ball::update(float seconds)
 	pos = pos + (seconds*dir) +  dir * (0.5f * seconds * seconds);
 	if (shouldBounce()) {
 		pos.y = TABLE_TOP + BALL_RADIUS;
-		dir *= vec3(0.95f,-0.9f,0.95f);
+		dir *= vec3(0.95f,-0.9f,0.98f);
 		//dir.y = dir.y * (-0.9f);
 	}
 }

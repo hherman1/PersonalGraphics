@@ -252,8 +252,8 @@ int main(int argc, char** argv)
 				ball.dir.z *= -1;
 
 			}
-			ball.dir += (paddleChange/seconds)*vec3(0.1,0,0.09);
-			ball.dir.y += 0.02*length(paddleChange)/seconds;
+			ball.dir += (paddleChange/seconds)*vec3(0.1,0,1.f);
+			ball.dir.y += 0.1*length(paddleChange)/seconds;
 
 			ball.pos.z = paddle.pos.z - 0.15;
 
@@ -272,7 +272,7 @@ int main(int argc, char** argv)
 		//wall hit?
 		if (ping_pong::ballHitWall(ball.pos,ball.prev_pos)) {
 			ball.dir.z = 1;
-			ball.dir.z *= 1.15; //more fun this way
+			ball.dir.z *= 1.5; //more fun this way
 			ball.pos.z = TABLE_BACK + BALL_RADIUS;
 		}
 		//other messages
