@@ -183,7 +183,7 @@ int main(int argc, char** argv)
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};	
-	Spotlight light(vec3(-1, 1, 0), vec3(0, 0, 0));
+	Spotlight light(vec3(0.5, 1, 0.5), vec3(0, 0, 0));
 	light.ambient = vec3(0.2f, 0.2f, 0.2f);
 	light.diffuse = vec3(1.f); // Let's darken the light a bit to fit the scene
 	light.specular = vec3(1.0f, 1.0f, 1.0f);
@@ -218,6 +218,7 @@ int main(int argc, char** argv)
 		//gorilla.bind();
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+<<<<<<< HEAD
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         
@@ -271,6 +272,24 @@ int main(int argc, char** argv)
                 standard_shader::drawArrayMesh(*cube);
             }
         }
+=======
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+		if (keys[GLFW_KEY_A]) {
+			light.position.x -= 1 * seconds;
+		}
+		if (keys[GLFW_KEY_D]) {
+			light.position.x += 1 * seconds;
+		}
+		if (keys[GLFW_KEY_W]) {
+			light.position.z -= 1 * seconds;
+		}
+		if (keys[GLFW_KEY_S]) {
+			light.position.z += 1 * seconds;
+		}
+
+>>>>>>> 43b98b8b1ac8ac4fb025614f9d4b09d8cb57fe07
 
 		
 		vec3 oldPos = paddle.pos;
@@ -283,25 +302,22 @@ int main(int argc, char** argv)
 			float ballDir = sign(ball.pos.z - ball.prev_pos.z);
 			float paddleDir = sign(paddle.pos.z - paddle.prev_pos.z);
 			vec3 paddleChange = paddle.pos - oldPos;
-			//if (paddleDir != 0) {
-			//	ball.dir = reflect(ball.dir, normalize(paddleChange));
-			//	ball.dir += paddleChange;
-			//	ball.pos.z = paddle.pos.z + paddleDir* 0.1;
-			//	//ball.dir.z *= ballDir * paddleDir;
-			//}
-			//else {
-			//	ball.dir.z *= -1;
-			//	ball.pos.z = paddle.pos.z + sign(ball.dir.z)* 0.2;
-			//}
+
 			if (ballDir == 1) {
-				ball.dir *= -1;
+				ball.dir.z *= -1;
 
 			}
-			ball.dir += (paddleChange/seconds)*0.03f;
-			//ball.dir.y +=length(paddleChange)/seconds;
+			ball.dir += (paddleChange/seconds)*vec3(0.1,0,0.05);
+			ball.dir.y += 0.05*length(paddleChange)/seconds;
 
 			ball.pos.z = paddle.pos.z - 0.15;
 
+		}
+		//net hit?
+		if (ball.pos.y < 0.2 && abs(ball.pos.z) < 0.03) {
+			ball.dir.z *= -1;
+			ball.pos.z = sign(ball.pos.z) * 0.03 + sign(ball.pos.z) * BALL_RADIUS;
+			ball.dir *= 0.1;
 		}
 		if (keys[GLFW_KEY_SPACE])
 			ball.launch();
@@ -317,7 +333,7 @@ int main(int argc, char** argv)
 		depthTexture.unbind();
 		utils::resetViewport();
 		//utils::displayTexture(depthTexture.texture());
-
+		
 		shader.use();
 		standard_shader::setSpotightMatrices(shader, light);
 		glActiveTexture(GL_TEXTURE0);
@@ -329,7 +345,7 @@ int main(int argc, char** argv)
 
 		//utils::displayTexture(depthTexture.texture());
 		//Light
-		/*unlitShader.use();
+		unlitShader.use();
 		unlitShader.setUniform("projection", camera.proj());
 		unlitShader.setUniform("view", camera.view());
 		unlitShader.setUniform("object_color", vec3(1, 1, 1));
@@ -343,7 +359,7 @@ int main(int argc, char** argv)
 			unlitShader.setUniform("model", model);
 			unlitShader.setUniform("object_color", light.specular);
 			standard_shader::drawArrayMesh(*cube);
-		}*/
+		}
 
 
 		//utils::displayTexture(gorilla);

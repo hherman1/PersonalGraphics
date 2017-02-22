@@ -71,11 +71,13 @@ vec3 calcLight() {
 
 void main()
 {
+	float shadow = 1.0;
+	float bias = 0.005;
 	vec3 shadowTexPos = ShadowPos.xyz/ShadowPos.w;
 	shadowTexPos = shadowTexPos*0.5 + 0.5;
-	if(texture(shadowMap,shadowTexPos.xy).r < shadowTexPos.z) {
-		color = vec4(0);
-	} else {
-		color = vec4(calcLight(),1);
+	float closestDepth = texture(shadowMap,shadowTexPos.xy).r;
+	if( shadowTexPos.z - bias > closestDepth) {
+		shadow = 0.1;
 	}
+	color = shadow * vec4(calcLight(),1);
 } 
