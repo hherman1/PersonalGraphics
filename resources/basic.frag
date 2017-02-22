@@ -57,15 +57,14 @@ vec3 calcLight() {
     		    light.quadratic * (distance * distance)); 
 
 	vec2 TexCoordFixed = vec2(TexCoord.x,1 - TexCoord.y);
-	vec3 result = (diffuse + ambient  + specular) * texture(Texture0,TexCoord) * attenuation;
 
 	float theta = dot(lightDir, normalize(-light.direction));
 	if(theta > light.cutOff) 
 	{    
-		return result;
+		return (diffuse + ambient  + specular) * attenuation;// * texture(Texture0,TexCoord);
 	}
 	else {
-	  return light.ambient * texture(Texture0,TexCoord);
+	  return light.ambient;// * texture(Texture0,TexCoord);
 	}
 }
 

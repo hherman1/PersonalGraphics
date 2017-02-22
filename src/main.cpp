@@ -27,14 +27,29 @@
 #include "Camera.h"
 #include "Importer.h"
 
+//Ping pong assignment
+#include "Paddle.h"
+#include "Ball.h"
+#include "Table.h"
+#include "main.h"
+
 using namespace glm;
 using namespace std;
 using namespace basicgraphics;
+
+
+bool keys[1024];
+int w_width = 1920;
+int w_height = 1080;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	// When a user presses the escape key, we set the WindowShouldClose property to true, 
 	// closing the application
+	if (action == GLFW_PRESS)
+		keys[key] = true;
+	else if (action == GLFW_RELEASE)
+		keys[key] = false;
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
@@ -44,15 +59,20 @@ struct {
 	double pitch = 0;
 	vec3 front = vec3(1,0,0);
 } aim ;
-struct {
-	double x = 0;
-	double y = 0;
-} mouse;
+vec2 mouse;
+vec2 mouseScreen;
+vec2 mouseScreenDiff;
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 	GLfloat xoffset = xpos - mouse.x;
 	GLfloat yoffset = mouse.y - ypos; // Reversed since y-coordinates range from bottom to top
 	mouse.x = xpos;
 	mouse.y = ypos;
+	
+	mouseScreen.x = xpos / w_width;
+	mouseScreen.y = ypos / w_height;
+
+	mouseScreenDiff.x = xoffset / w_width;
+	mouseScreenDiff.y = yoffset / w_height;
 
 	GLfloat sensitivity = 0.05f;
 	xoffset *= sensitivity;
@@ -72,8 +92,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 
-int w_width = 1920;
-int w_height = 1080;
+
 GLFWwindow* init() {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -117,28 +136,6 @@ int main(int argc, char** argv)
 	
 	GLFWwindow* window = init();
 
-
-	GLfloat vertices[] = {
-		// Positions          // Colors           // Texture Coords
-		0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-		0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
-		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
-	};
-	GLuint indices[] = {  // Note that we start from 0!
-		0, 1, 2,
-		2, 3, 0,// First Triangle
-	};
-	/*Vertex * Vertices = (Vertex*) vertices;
-	vector<Vertex> VerticesVec(Vertices, Vertices + 4);*/
-	//vector<Vertex> Vertices((Vertex*)vertices, (Vertex*)vertices + 4 * sizeof(Vertex));
-	ArrayMesh triangle;
-	triangle.bind();
-	triangle.loadVertexData(sizeof(vertices), vertices, GL_STATIC_DRAW);
-	triangle.loadIndexData(sizeof(indices), indices, GL_STATIC_DRAW);
-	triangle.unbind();
-	
-
 	GLSLProgram unlitShader;
 	unlitShader.compileShader("unlit.vert");
 	unlitShader.compileShader("unlit.frag");
@@ -150,19 +147,17 @@ int main(int argc, char** argv)
 	shader.link();
 
 	
-	Texture gorilla;
-	gorilla.loadImage("gorilla.jpg");
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	gorilla.unbind();
-
-	auto proj = perspective(45.0f, (float)w_width / (float)w_height, 0.1f, 100.0f);
-	glm::mat4 view;
-	// Note that we're translating the scene in the reverse direction of where we want to move
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	//Texture gorilla;
+	//gorilla.loadImage("gorilla.jpg");
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//gorilla.unbind();
 
 	shared_ptr<IndexedMeshes> sphere = importer::loadModel("sphere.obj");
-	
+	shared_ptr<IndexedMeshes> cylinder = importer::loadModel("cylinder.obj");
+	shared_ptr<IndexedMeshes> cone = importer::loadModel("cone.obj");
+	//shared_ptr<IndexedMeshes> cube = importer::loadModel("cube.obj");
+
 	
 	DepthTexture::compileShader();
 	DepthTexture depthTexture;
@@ -183,17 +178,21 @@ int main(int argc, char** argv)
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};	
-	Spotlight light(vec3(2, 1, 0), vec3(0, 0, 0));
+	Spotlight light(vec3(0, 1, 0), vec3(0, 0, 0));
 	light.ambient = vec3(0.2f, 0.2f, 0.2f);
-	light.diffuse = vec3(0.5f, 0.5f, 0.5f); // Let's darken the light a bit to fit the scene
+	light.diffuse = vec3(1.f); // Let's darken the light a bit to fit the scene
 	light.specular = vec3(1.0f, 1.0f, 1.0f);
-	Camera camera(vec3(3, 6, 3), vec3(0, 0, 0), (float)w_width / (float)w_height);
+	Camera camera(vec3(0, 0.6, 2), vec3(0, 0, 0), (float)w_width / (float)w_height);
 
 	Material mat = {
 		vec3(1.0f, 0.5f, 0.31f),vec3(1.0f, 0.5f, 0.31f),vec3(0.5f, 0.5f, 0.5f),32.0f
 	};
-	
 
+	vec3 ball_pos;
+	
+	Table table;
+	Paddle paddle;
+	Ball ball;
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -201,8 +200,8 @@ int main(int argc, char** argv)
 		float seconds = clock.tick();
 		rotation += 180*seconds ;
 
-		camera.pos = 10.f * aim.front;
-		//camera.pos = vec3(rotate(mat4(1.0f), radians(rotation), vec3(1, 1, 1)) * vec4(camera.pos,1.f));
+		//Debug mode only.
+		//camera.pos = 3.f * aim.front;
 
 
 		shader.use();
@@ -211,12 +210,12 @@ int main(int argc, char** argv)
 		standard_shader::setLight(shader, light);
 		standard_shader::setMaterial(shader, mat);
 
-		gorilla.bind();
+		//gorilla.bind();
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		
+		/*
 		for (int i = 0; i < 10; i++) {
 			mat4 model;
 			model = translate(model, cubePositions[i]);
@@ -229,28 +228,26 @@ int main(int argc, char** argv)
 			shared_ptr<ArrayMesh> cube = utils::getCube();
 			standard_shader::drawArrayMesh(*cube);
 		}
+		*/
 
-		{
-			mat4 model;
-			model = mat4(1.f);
-			standard_shader::setModel(shader, model);
-			standard_shader::setMaterial(shader, {
-				vec3(0.24725,0.1995,0.0745),
-				vec3(0.75164,0.60648,0.22648),
-				vec3(0.628281,0.555802,0.366065),
-				32.f
-			});
-			standard_shader::drawIndexedMeshes(sphere->indexedGPUReferences);
+		
+		paddle.draw(shader);
+		{//Paddle coords
+			mat4 transform = mat4(1.f);
+			transform = rotate(transform, radians(90.f), vec3(1, 0, 0));
+			paddle.move(vec2(mouseScreenDiff.x,-mouseScreenDiff.y));
+			mouseScreenDiff = vec2(0);
 		}
+		//paddle.pos = paddle.pos + vec3(0.1*seconds);
+		ball.update(seconds);
+		if (keys[GLFW_KEY_SPACE])
+			ball.launch();
+		ball.draw(shader);
+		table.draw(shader);
 
-		shared_ptr<ArrayMesh> cube = utils::getCube();
-		mat4 model;
-		model = translate(model, vec3(0, -2, 0));
-		model = scale(model, vec3(4.f, 0.25f, 4.f));
-		standard_shader::setModel(shader,model);
-		standard_shader::drawArrayMesh(*cube);
+		//Table
 
-
+		//Light
 		unlitShader.use();
 		unlitShader.setUniform("projection", camera.proj());
 		unlitShader.setUniform("view", camera.view());
@@ -259,9 +256,9 @@ int main(int argc, char** argv)
 		{
 			shared_ptr<ArrayMesh> cube = utils::getCube();
 			cube->bind();
-			model = mat4(1.0);
+			mat4 model = mat4(1.0);
 			model = translate(model, light.position);
-			model = scale(model, vec3(0.25));
+			model = scale(model, vec3(1.f/16));
 			unlitShader.setUniform("model", model);
 			unlitShader.setUniform("object_color", light.specular);
 			standard_shader::drawArrayMesh(*cube);

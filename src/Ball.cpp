@@ -3,9 +3,10 @@
 
 using namespace basicgraphics;
 using namespace glm;
+using namespace std;
 
 Ball::Ball() :
-	_sphere(vec3(0, 0, 0), BALL_RADIUS, vec4(1, 1, 1, 1)),
+	_sphere(importer::loadModel("sphere.obj")),
 	pos(0, TABLE_TOP + 0.5, 0),
 	dir(0, 0, 0)
 {
@@ -16,18 +17,32 @@ Ball::~Ball()
 {
 }
 
-void Ball::draw(basicgraphics::GLSLProgram & shader, const glm::mat4 & modelMatrix)
+void Ball::draw(basicgraphics::GLSLProgram & shader)
 {
-	glm::mat4 model = modelMatrix * translate(mat4(1.0f), pos);
-	_sphere.draw(shader, model);
+	mat4 model;
+	model = mat4(1.f);
+	model = translate(model, pos);
+	model = scale(model, vec3(BALL_RADIUS));
+	standard_shader::setModel(shader, model);
+	standard_shader::setMaterial(shader, {
+		vec3(0.9f),
+		vec3(0.9f),
+		vec3(0.01f),
+		.25f * 128
+	});
+	standard_shader::drawIndexedMeshes(_sphere->indexedGPUReferences);
 }
 
-void Ball::update(std::chrono::milliseconds ms)
+bool Ball::shouldBounce() {
+	return (pos.y < TABLE_TOP + BALL_RADIUS)
+		&& (pos.x < TABLE_RIGHT && pos.x > TABLE_LEFT)
+		&& (pos.z < TABLE_FRONT && pos.z > TABLE_BACK);
+}
+void Ball::update(float seconds)
 {
-	float seconds = ms.count() / 1000.0f;
 	dir = dir + vec3(0, -9.8*seconds,0);
 	pos = pos + (seconds*dir) +  dir * (0.5f * seconds * seconds);
-	if (pos.y < TABLE_TOP + BALL_RADIUS) {
+	if (shouldBounce()) {
 		pos.y = TABLE_TOP + BALL_RADIUS;
 		dir.y = dir.y * (-0.9f);
 	}
