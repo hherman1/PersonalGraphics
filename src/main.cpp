@@ -218,8 +218,20 @@ int main(int argc, char** argv)
 		//gorilla.bind();
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-<<<<<<< HEAD
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        if (keys[GLFW_KEY_A]) {
+            light.position.x -= 1 * seconds;
+        }
+        if (keys[GLFW_KEY_D]) {
+            light.position.x += 1 * seconds;
+        }
+        if (keys[GLFW_KEY_W]) {
+            light.position.z -= 1 * seconds;
+        }
+        if (keys[GLFW_KEY_S]) {
+            light.position.z += 1 * seconds;
+        }
         
         
         {
@@ -272,24 +284,9 @@ int main(int argc, char** argv)
                 standard_shader::drawArrayMesh(*cube);
             }
         }
-=======
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		if (keys[GLFW_KEY_A]) {
-			light.position.x -= 1 * seconds;
-		}
-		if (keys[GLFW_KEY_D]) {
-			light.position.x += 1 * seconds;
-		}
-		if (keys[GLFW_KEY_W]) {
-			light.position.z -= 1 * seconds;
-		}
-		if (keys[GLFW_KEY_S]) {
-			light.position.z += 1 * seconds;
-		}
 
->>>>>>> 43b98b8b1ac8ac4fb025614f9d4b09d8cb57fe07
 
 		
 		vec3 oldPos = paddle.pos;
