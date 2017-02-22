@@ -207,6 +207,7 @@ int main(int argc, char** argv)
 	Paddle paddle;
 	Ball ball;
 	bool inbounds = true;
+	int volley = 0;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -274,7 +275,8 @@ int main(int argc, char** argv)
 			//ball.pos.z = sign(ball.pos.z) * 0.03 + sign(ball.pos.z) * BALL_RADIUS;
 			ball.dir *= 0.1;
 			if (inbounds) {
-				cout << "You hit the net." << endl;
+				cout << endl << "You hit the net after " << volley << " volleys!" << endl;
+				volley = 0;
 				inbounds = false;
 			}
 		}
@@ -282,6 +284,8 @@ int main(int argc, char** argv)
 		if (ping_pong::ballHitWall(ball.pos,ball.prev_pos)) {
 			ball.dir.z *= -0.9;
 			ball.pos.z = TABLE_BACK + BALL_RADIUS;
+			volley++;
+			cout << "Volley " << volley << ". ";
 		}
 #define ROOM_WALL_DAMPENER 0.5f
 		//back room wall hit?
@@ -320,7 +324,8 @@ int main(int argc, char** argv)
 		//other messages
 		{
 			if (ball.pos.y < TABLE_TOP && inbounds) {
-				cout << "The ball is out of bounds!" << endl;
+				cout << endl << "The ball is out of bounds! You had " << volley << " volleys!" << endl;
+				volley = 0;
 				inbounds = false;
 			}
 
