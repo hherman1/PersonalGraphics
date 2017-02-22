@@ -40,7 +40,8 @@ bool Ball::shouldBounce() {
 }
 void Ball::update(float seconds)
 {
-	dir = dir + vec3(0, -9.8*seconds,0);
+	dir = dir + vec3(0, -GRAVITY*seconds,0);
+	prev_pos = pos;
 	pos = pos + (seconds*dir) +  dir * (0.5f * seconds * seconds);
 	if (shouldBounce()) {
 		pos.y = TABLE_TOP + BALL_RADIUS;
@@ -51,5 +52,5 @@ void Ball::update(float seconds)
 void Ball::launch()
 {
 	pos = vec3(0, TABLE_TOP + BALL_RADIUS + 0.5, -TABLE_LENGTH / 2);
-	dir = vec3(0, 0, TABLE_LENGTH/4);
+	dir = vec3(0, 0.25, TABLE_LENGTH/3);
 }

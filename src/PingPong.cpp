@@ -1,19 +1,26 @@
 #include "PingPong.h"
 
+#define THRESHOLD 0.05f
+
 using namespace glm;
+
 
 
 //mediocre hit detection
 float lineDistance(vec3 & start, vec3 & end, vec3 &pt);
 
-bool ballHitPaddle(vec3 & ballPos, vec3 & paddlePrev,vec3 & paddleCurrent) {
+bool ballHitPaddle(vec3 & ballCurrent,vec3 & ballPrev, vec3 & paddlePrev,vec3 & paddleCurrent) {
 	//return lineDistance(paddlePrev, paddleCurrent, vec3(ballPos.x,0,ballPos.z)) < BALL_RADIUS + PADDLE_RADIUS;
-    vec3 ballPosFixed(ballPos.x,0,ballPos.z);
-	if ((ballPos.z > paddlePrev.z && ballPos.z > paddleCurrent.z)
-		|| (ballPos.z < paddlePrev.z && ballPos.z < paddleCurrent.z)) {
+	vec3 ballCurFixed(ballCurrent.x, 0, ballCurrent.z);
+	vec3 ballPreFixed(ballPrev.x, 0, ballPrev.z);
+	if (length(paddlePrev - paddleCurrent) < THRESHOLD ) {
+		return lineDistance(ballPreFixed, ballCurFixed, paddleCurrent) < BALL_RADIUS + PADDLE_RADIUS;
+	}
+	if ((ballCurrent.z > paddlePrev.z && ballCurrent.z > paddleCurrent.z)
+		|| (ballCurrent.z < paddlePrev.z && ballCurrent.z < paddleCurrent.z)) {
 		return false;
 	}
-    return lineDistance(paddlePrev, paddleCurrent, ballPosFixed) < BALL_RADIUS + PADDLE_RADIUS;
+    return lineDistance(paddlePrev, paddleCurrent, ballCurFixed) < BALL_RADIUS + PADDLE_RADIUS;
 }
 float lineDistance(vec3 & start, vec3 & end, vec3 &pt) {
 	return length(pt - closestPoint(start, end, pt));

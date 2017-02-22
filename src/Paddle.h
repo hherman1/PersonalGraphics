@@ -7,6 +7,7 @@
 
 #define PADDLE_ELEVATION 0.25f
 #define PADDLE_RADIUS 0.1f
+#define PADDLE_DEPTH 0.02f
 class Paddle
 {
 public:
@@ -15,6 +16,7 @@ public:
 	~Paddle();
 	void draw(basicgraphics::GLSLProgram& shader);
 	glm::vec3 pos;
+	glm::vec3 prev_pos;
 	float getAngle();
 protected:
 

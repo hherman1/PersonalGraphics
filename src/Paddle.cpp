@@ -10,6 +10,7 @@ Paddle::Paddle() :
 	cylinder = importer::loadModel("cylinder.obj");
 }
 void Paddle::move(vec2 diff) {
+	prev_pos = pos;
 	pos += vec3(diff.x,0,diff.y);
 	pos = glm::clamp(pos, vec3(TABLE_LEFT,0, 0), vec3(TABLE_RIGHT,0, TABLE_FRONT));
 }
@@ -36,7 +37,7 @@ void Paddle::draw(GLSLProgram& shader) {
 		//paddle head
 		mat4 model_paddle = mat4(1.f);
 		model_paddle = translate(model_paddle, vec3(0, 0, 0));
-		model_paddle = scale(model_paddle, vec3(PADDLE_RADIUS, PADDLE_RADIUS, 0.02));
+		model_paddle = scale(model_paddle, vec3(PADDLE_RADIUS, PADDLE_RADIUS, PADDLE_DEPTH/2));
 		model_paddle = rotate(model_paddle, radians(90.f), vec3(1, 0, 0));
 		standard_shader::setModel(shader, model * model_paddle);
 		vec3 diffuse = vec3(1.f, 0.5, 0.5);
@@ -47,6 +48,7 @@ void Paddle::draw(GLSLProgram& shader) {
 			0.5f * 128
 		});
 		standard_shader::drawIndexedMeshes(cylinder->indexedGPUReferences);
+
 
 		//paddle handle
 

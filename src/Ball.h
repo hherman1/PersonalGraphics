@@ -5,6 +5,8 @@
 #include "Importer.h"
 #include "StandardShader.h"
 
+
+#define GRAVITY (9.8f/3)
 #define BALL_RADIUS (30.0f / 1000) // 30 millimeters.
 
 class Ball
@@ -16,6 +18,7 @@ public:
 	void update(float seconds);
 	void launch();
 	glm::vec3 pos;
+	glm::vec3 prev_pos;
 	glm::vec3 dir;
 
 

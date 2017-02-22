@@ -183,7 +183,7 @@ int main(int argc, char** argv)
 	light.ambient = vec3(0.2f, 0.2f, 0.2f);
 	light.diffuse = vec3(1.f); // Let's darken the light a bit to fit the scene
 	light.specular = vec3(1.0f, 1.0f, 1.0f);
-	Camera camera(vec3(0, 0.6, 2), vec3(0, 0, 0), (float)w_width / (float)w_height);
+	Camera camera(vec3(0, 1, 2), vec3(0, 0, 0.25), (float)w_width / (float)w_height);
 
 	Material mat = {
 		vec3(1.0f, 0.5f, 0.31f),vec3(1.0f, 0.5f, 0.31f),vec3(0.5f, 0.5f, 0.5f),32.0f
@@ -230,6 +230,15 @@ int main(int argc, char** argv)
 			standard_shader::drawArrayMesh(*cube);
 		}
 		*/
+		//Square
+		{
+			mat4 model(1.f);
+			auto sq = utils::getSquare();
+			standard_shader::setModel(shader, model);
+			standard_shader::drawIndexedMesh(*sq);
+
+		}
+
 
 		
 		paddle.draw(shader);
@@ -238,13 +247,21 @@ int main(int argc, char** argv)
 		mouseScreenDiff = vec2(0);
 		//paddle.pos = paddle.pos + vec3(0.1*seconds);
 		ball.update(seconds);
-		if (ballHitPaddle(ball.pos, oldPos, paddle.pos)) {
-			vec3 paddleDiff = paddle.pos - oldPos;
-			ball.pos.z = paddle.pos.z + BALL_RADIUS;
-			if (dot(paddleDiff, vec3(ball.dir.x,0,ball.dir.z)) < 0) {
-				ball.dir.z *= -1;
+		if (ballHitPaddle(ball.pos,ball.prev_pos, oldPos, paddle.pos)) {
+			//ball.dir = vec3(0);
+			float ballDir = sign(ball.pos.z - ball.prev_pos.z);
+			float paddleDir = sign(paddle.pos.z - paddle.prev_pos.z);
+			vec3 paddleChange = paddle.pos - oldPos;
+			if (paddleDir != 0) {
+				ball.dir = reflect(ball.dir, normalize(paddleChange));
+				ball.dir += paddleChange;
+				ball.pos.z = paddle.pos.z + paddleDir* 0.1;
+				//ball.dir.z *= ballDir * paddleDir;
 			}
-			ball.dir += paddleDiff;
+			else {
+				ball.dir.z *= -1;
+				ball.pos.z = paddle.pos.z + sign(ball.dir.z)* 0.2;
+			}
 
 		}
 		if (keys[GLFW_KEY_SPACE])

@@ -6,7 +6,8 @@ namespace utils {
 
 	// The square should be accessed through getSquare, and will auto-load if not loaded. 
 	// It is a 2D square.
-	shared_ptr<Mesh> _square = NULL;
+
+	shared_ptr<IndexedMesh> _square = NULL;
 	void loadSquare() {
 		GLfloat vertices[] = {
 			// Positions          // Colors           // Texture Coords
@@ -19,7 +20,7 @@ namespace utils {
 			0, 1, 2,
 			2, 3, 0,// First Triangle
 		};
-		Mesh * square = new Mesh();
+		IndexedMesh * square = new IndexedMesh();
 		_square.reset(square);
 		_square->bind();
 		_square->loadVertexData(sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -27,7 +28,7 @@ namespace utils {
 		_square->setElements(6);
 		_square->unbind();
 	}
-	shared_ptr<Mesh> getSquare() {
+	shared_ptr<IndexedMesh> getSquare() {
 		if (_square == NULL) {
 			loadSquare();
 		}
