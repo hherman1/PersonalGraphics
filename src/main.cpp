@@ -183,7 +183,7 @@ int main(int argc, char** argv)
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};	
-	Spotlight light(vec3(-1, 1, 0), vec3(0, 0, 0));
+	Spotlight light(vec3(0.5, 1, 0.5), vec3(0, 0, 0));
 	light.ambient = vec3(0.2f, 0.2f, 0.2f);
 	light.diffuse = vec3(1.f); // Let's darken the light a bit to fit the scene
 	light.specular = vec3(1.0f, 1.0f, 1.0f);
@@ -247,21 +247,12 @@ int main(int argc, char** argv)
 			float ballDir = sign(ball.pos.z - ball.prev_pos.z);
 			float paddleDir = sign(paddle.pos.z - paddle.prev_pos.z);
 			vec3 paddleChange = paddle.pos - oldPos;
-			//if (paddleDir != 0) {
-			//	ball.dir = reflect(ball.dir, normalize(paddleChange));
-			//	ball.dir += paddleChange;
-			//	ball.pos.z = paddle.pos.z + paddleDir* 0.1;
-			//	//ball.dir.z *= ballDir * paddleDir;
-			//}
-			//else {
-			//	ball.dir.z *= -1;
-			//	ball.pos.z = paddle.pos.z + sign(ball.dir.z)* 0.2;
-			//}
+
 			if (ballDir == 1) {
 				ball.dir *= -1;
 
 			}
-			ball.dir += (paddleChange/seconds)*0.03f;
+			ball.dir += (paddleChange/seconds)*vec3(0.05);
 			//ball.dir.y +=length(paddleChange)/seconds;
 
 			ball.pos.z = paddle.pos.z - 0.15;
@@ -293,7 +284,7 @@ int main(int argc, char** argv)
 
 		//utils::displayTexture(depthTexture.texture());
 		//Light
-		/*unlitShader.use();
+		unlitShader.use();
 		unlitShader.setUniform("projection", camera.proj());
 		unlitShader.setUniform("view", camera.view());
 		unlitShader.setUniform("object_color", vec3(1, 1, 1));
@@ -307,7 +298,7 @@ int main(int argc, char** argv)
 			unlitShader.setUniform("model", model);
 			unlitShader.setUniform("object_color", light.specular);
 			standard_shader::drawArrayMesh(*cube);
-		}*/
+		}
 
 
 		//utils::displayTexture(gorilla);
