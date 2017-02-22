@@ -9,12 +9,15 @@ Right now the system is kind of rigid. It only supports a single light and doesn
 
 The scene and interactions all happen in main.cpp, by preference.
 
-Anyways, other non-graphical features:
 
-WASD: move the light's (x,z) coords. Note, the light isn't casting shadows from its location, instead its casting shadows as though it were
-the sun and its location about the origin determines the direction of the shadows.I just started to implement real point lights w/ shadows,
-but I haven't got them finished yet. Implementing these things would probbaly be much harder without good tutorials.
-Space: Launch the ball.
+
+## Cool Features
+
+* Directional light + shadow mapping
+* WASD: move the light's (x,z) coords. Note, the light isn't casting shadows from its location, instead its casting shadows as though it were the sun and its location about the origin determines the direction of the shadows.I just started to implement real point lights w/ shadows, but I haven't got them finished yet. Implementing these things would probbaly be much harder without good tutorials.
+* Space: Launch the ball.
+* Play against yourself by bouncing off the wall
+* Or off the floor! (or other walls)
 
 ##Building
 
