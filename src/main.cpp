@@ -147,12 +147,17 @@ int main(int argc, char** argv)
 	shader.compileShader("basic.frag");
 	shader.link();
 
+	GLSLProgram depthShader;
+	depthShader.compileShader("depth.vert");
+	depthShader.compileShader("depth.frag");
+	depthShader.link();
+
 	
-	//Texture gorilla;
-	//gorilla.loadImage("gorilla.jpg");
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//gorilla.unbind();
+	Texture gorilla;
+	gorilla.loadImage("gorilla.jpg");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	gorilla.unbind();
 
 	shared_ptr<IndexedMeshes> sphere = importer::loadModel("sphere.obj");
 	shared_ptr<IndexedMeshes> cylinder = importer::loadModel("cylinder.obj");
@@ -160,7 +165,6 @@ int main(int argc, char** argv)
 	//shared_ptr<IndexedMeshes> cube = importer::loadModel("cube.obj");
 
 	
-	DepthTexture::compileShader();
 	DepthTexture depthTexture;
 
 	Clock clock;
@@ -179,7 +183,7 @@ int main(int argc, char** argv)
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};	
-	Spotlight light(vec3(0, 1, 0), vec3(0, 0, 0));
+	Spotlight light(vec3(-1, 1, 0), vec3(0, 0, 0));
 	light.ambient = vec3(0.2f, 0.2f, 0.2f);
 	light.diffuse = vec3(1.f); // Let's darken the light a bit to fit the scene
 	light.specular = vec3(1.0f, 1.0f, 1.0f);
@@ -230,18 +234,9 @@ int main(int argc, char** argv)
 			standard_shader::drawArrayMesh(*cube);
 		}
 		*/
-		//Square
-		{
-			mat4 model(1.f);
-			auto sq = utils::getSquare();
-			standard_shader::setModel(shader, model);
-			standard_shader::drawIndexedMesh(*sq);
-
-		}
 
 
 		
-		paddle.draw(shader);
 		vec3 oldPos = paddle.pos;
 		paddle.move(vec2(mouseScreenDiff.x,-mouseScreenDiff.y));
 		mouseScreenDiff = vec2(0);
@@ -252,27 +247,53 @@ int main(int argc, char** argv)
 			float ballDir = sign(ball.pos.z - ball.prev_pos.z);
 			float paddleDir = sign(paddle.pos.z - paddle.prev_pos.z);
 			vec3 paddleChange = paddle.pos - oldPos;
-			if (paddleDir != 0) {
-				ball.dir = reflect(ball.dir, normalize(paddleChange));
-				ball.dir += paddleChange;
-				ball.pos.z = paddle.pos.z + paddleDir* 0.1;
-				//ball.dir.z *= ballDir * paddleDir;
+			//if (paddleDir != 0) {
+			//	ball.dir = reflect(ball.dir, normalize(paddleChange));
+			//	ball.dir += paddleChange;
+			//	ball.pos.z = paddle.pos.z + paddleDir* 0.1;
+			//	//ball.dir.z *= ballDir * paddleDir;
+			//}
+			//else {
+			//	ball.dir.z *= -1;
+			//	ball.pos.z = paddle.pos.z + sign(ball.dir.z)* 0.2;
+			//}
+			if (ballDir == 1) {
+				ball.dir *= -1;
+
 			}
-			else {
-				ball.dir.z *= -1;
-				ball.pos.z = paddle.pos.z + sign(ball.dir.z)* 0.2;
-			}
+			ball.dir += (paddleChange/seconds)*0.03f;
+			//ball.dir.y +=length(paddleChange)/seconds;
+
+			ball.pos.z = paddle.pos.z - 0.15;
 
 		}
 		if (keys[GLFW_KEY_SPACE])
 			ball.launch();
+
+		//need to unbind and reset viewport after
+		standard_shader::setupDepthShader(depthShader, depthTexture, light);
+
+		//draw 
+		paddle.draw(depthShader);
+		ball.draw(depthShader);
+		table.draw(depthShader);
+
+		depthTexture.unbind();
+		utils::resetViewport();
+		//utils::displayTexture(depthTexture.texture());
+
+		shader.use();
+		standard_shader::setSpotightMatrices(shader, light);
+		glActiveTexture(GL_TEXTURE0);
+		depthTexture.texture().bind();
+		shader.setUniform("shadowMap", 0);
+		paddle.draw(shader);
 		ball.draw(shader);
 		table.draw(shader);
 
-		//Table
-
+		//utils::displayTexture(depthTexture.texture());
 		//Light
-		unlitShader.use();
+		/*unlitShader.use();
 		unlitShader.setUniform("projection", camera.proj());
 		unlitShader.setUniform("view", camera.view());
 		unlitShader.setUniform("object_color", vec3(1, 1, 1));
@@ -286,7 +307,7 @@ int main(int argc, char** argv)
 			unlitShader.setUniform("model", model);
 			unlitShader.setUniform("object_color", light.specular);
 			standard_shader::drawArrayMesh(*cube);
-		}
+		}*/
 
 
 		//utils::displayTexture(gorilla);

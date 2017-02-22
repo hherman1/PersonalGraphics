@@ -7,6 +7,7 @@
 #include <memory>
 namespace utils {
 	void displayTexture(Texture& tex);
+	void resetViewport();
 	std::shared_ptr<IndexedMesh> getSquare();
 	std::shared_ptr<ArrayMesh> getCube();
 	void clean();

@@ -5,6 +5,7 @@ in mat4 lightMat;
 in mat4 cameraMat;
 
 in vec3 WorldPos;
+in vec4 ShadowPos;
 in vec3 Normal;
 in vec2 TexCoord;
 out vec4 color;
@@ -36,7 +37,7 @@ struct Light {
 uniform Light light;  
 
 uniform vec3 camera_view_pos;
-uniform sampler2D Texture0;
+uniform sampler2D shadowMap;
 
 vec3 calcLight() {
     vec3 ambient = material.ambient * light.ambient;
@@ -70,6 +71,11 @@ vec3 calcLight() {
 
 void main()
 {
-
-	color = vec4(calcLight(),1.0);
+	vec3 shadowTexPos = ShadowPos.xyz/ShadowPos.w;
+	shadowTexPos = shadowTexPos*0.5 + 0.5;
+	if(texture(shadowMap,shadowTexPos.xy).r < shadowTexPos.z) {
+		color = vec4(0);
+	} else {
+		color = vec4(calcLight(),1);
+	}
 } 

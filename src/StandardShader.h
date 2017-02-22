@@ -2,8 +2,11 @@
 #include "GLSLProgram.h"
 #include "Mesh.h"
 #include "Light.h"
+#include "Spotlight.h"
 #include "Camera.h"
 #include "Utils.h"
+#include "Spotlight.h"
+#include "DepthTexture.h"
 
 #include <vector>
 
@@ -31,5 +34,8 @@ namespace standard_shader {
 	void drawIndexedGPUReference(IndexedGPUMeshReference m);
 	void drawIndexedMeshes(std::vector<IndexedGPUMeshReference> meshes);
 	void drawArrayMesh(ArrayMesh& mesh);
+	void setSpotightMatrices(basicgraphics::GLSLProgram & shader, Spotlight l);
+	//need to unbind and reset viewport after
+	void setupDepthShader(basicgraphics::GLSLProgram & shader, DepthTexture & dt, Spotlight l);
 };
 

@@ -6,11 +6,12 @@ using namespace std;
 
 GLSLProgram depthShader;
 
+//auto unbinds after construction
 DepthTexture::DepthTexture():
 	_framebuffer(),
 	_texture()
 {
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 800, 600, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -18,6 +19,7 @@ DepthTexture::DepthTexture():
 
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _texture.id(), 0);
 	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
 	Framebuffer::validate();
 	Framebuffer::unbind();
 }
@@ -27,24 +29,16 @@ DepthTexture::~DepthTexture()
 {
 }
 
-void DepthTexture::compileShader()
-{
-	depthShader.compileShader("depth.vert");
-	depthShader.compileShader("depth.frag");
-	depthShader.link();
-}
-// Make sure compileShader(); is called at some point before calling this. 
-void DepthTexture::useDepthShader()
-{
-	depthShader.use();
-}
-
-// binds a framebuffer and a texture. Must change active texture before binding extra textures.
+// binds its framebuffer.
 // should probably clear after binding to clear previous depth texture.
 void DepthTexture::bind()
 {
 	_framebuffer.bind();
-	_texture.bind();
+}
+
+void DepthTexture::setViewport()
+{
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 }
 
 void DepthTexture::unbind()
@@ -56,9 +50,4 @@ void DepthTexture::unbind()
 Texture& DepthTexture::texture()
 {
 	return _texture;
-}
-
-void DepthTexture::setShaderTransform(glm::mat4 transform)
-{
-	depthShader.setUniform("transform", transform);
 }

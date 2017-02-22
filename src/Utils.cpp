@@ -3,6 +3,9 @@ using namespace std;
 using namespace basicgraphics;
 namespace utils {
 
+	void resetViewport() {
+		glViewport(0, 0, 1920, 1080);
+	}
 
 	// The square should be accessed through getSquare, and will auto-load if not loaded. 
 	// It is a 2D square.

@@ -73,3 +73,17 @@ namespace standard_shader {
 	}
 }
 
+void standard_shader::setSpotightMatrices(GLSLProgram & shader, Spotlight l)
+{
+	shader.setUniform("light_view", l.view());
+	shader.setUniform("light_projection", l.proj());
+}
+//need to unbind and reset viewport after
+void standard_shader::setupDepthShader(GLSLProgram & shader, DepthTexture & dt, Spotlight l) {
+	shader.use();
+	dt.bind();
+	dt.setViewport();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	standard_shader::setSpotightMatrices(shader, l);
+}
