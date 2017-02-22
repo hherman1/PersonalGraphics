@@ -56,16 +56,8 @@ void Table::drawLegs(basicgraphics::GLSLProgram & shader) {
 	standard_shader::setModel(shader, model);
 	standard_shader::drawArrayMesh(*cube);
 }
-void Table::drawWall(basicgraphics::GLSLProgram & shader)
-{
-	shared_ptr<ArrayMesh> wall = utils::getCube();
-	mat4 model;
-	model = translate(model, vec3(0, TABLE_WALL_HEIGHT / 2 + TABLE_TOP, TABLE_BACK));
-	model = scale(model, vec3(TABLE_WIDTH / 2, TABLE_WALL_HEIGHT / 2, 0.001f));
-	standard_shader::setModel(shader, model);
-	standard_shader::setMaterial(shader, table_mat);
-	standard_shader::drawArrayMesh(*wall);
-}
+
+
 void Table::drawBoard(basicgraphics::GLSLProgram & shader)
 {
 	shared_ptr<ArrayMesh> cube = utils::getCube();
@@ -77,6 +69,27 @@ void Table::drawBoard(basicgraphics::GLSLProgram & shader)
 	standard_shader::setMaterial(shader, table_mat);
 	standard_shader::drawArrayMesh(*cube);
 }
+
+void Table::drawWall(basicgraphics::GLSLProgram & shader)
+{
+    Texture trump_texture;
+    trump_texture.loadImage("trump.png");
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    trump_texture.unbind();
+    
+    standard_shader::setTexture(shader, trump_texture);
+    //ping_pong::drawFloor(shader);
+    shared_ptr<ArrayMesh> wall = utils::getCube();
+    mat4 model;
+    model = translate(model, vec3(0, TABLE_WALL_HEIGHT / 2 + TABLE_TOP, TABLE_BACK));
+    model = scale(model, vec3(TABLE_WIDTH / 2, TABLE_WALL_HEIGHT / 2, 0.001f));
+    standard_shader::setModel(shader, model);
+    //standard_shader::setMaterial(shader, table_mat);
+    standard_shader::setTexture(shader, trump_texture);
+    standard_shader::drawArrayMesh(*wall);
+}
+
 void Table::drawNet(basicgraphics::GLSLProgram & shader)
 {
 	mat4 net = mat4(1.f);
