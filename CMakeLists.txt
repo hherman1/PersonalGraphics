@@ -44,7 +44,11 @@ set (SOURCEFILES
 		src/Camera.cpp
 		src/Light.cpp
 		src/Importer.cpp
-		src/StandardShader.cpp)
+		src/StandardShader.cpp
+		src/Paddle.cpp
+		src/Ball.cpp
+		src/Table.cpp
+		src/PingPong.cpp)
 
 set (HEADERFILES 
 		src/Graphics.h
@@ -59,7 +63,11 @@ set (HEADERFILES
 		src/Camera.h
 		src/Light.h
 		src/Importer.h
-		src/StandardShader.h)
+		src/StandardShader.h
+		src/Paddle.h
+		src/Ball.h
+		src/Table.h
+		src/PingPong.h)
 
 #source_group("Header Files" FILES ${HEADERFILES})
 source_group("Shaders" FILES ${SHADERS})
