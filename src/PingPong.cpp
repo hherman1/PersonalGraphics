@@ -3,6 +3,8 @@
 using namespace glm;
 
 //mediocre hit detection
+float lineDistance(vec3 & start, vec3 & end, vec3 &pt);
+
 bool ballHitPaddle(vec3 ballPos, vec3 paddlePrev,vec3 paddleCurrent) {
 	return lineDistance(paddlePrev, paddleCurrent, vec3(ballPos.x,0,ballPos.z)) < BALL_RADIUS + PADDLE_RADIUS;
 	return true;

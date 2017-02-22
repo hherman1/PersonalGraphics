@@ -17,7 +17,7 @@ float Paddle::getAngle() {
 	//have paddle rotate
 	vec3 lookAt(0, 0, TABLE_BACK / 2);
 	vec3 face = normalize(lookAt - pos);
-	float angle = acos(dot(face, vec3(0, 1, 0)));
+	float angle = acos(dot(face, vec3(0, 0, 1)));
 	if (cross(face, vec3(0, 1, 0)).z < 0) {
 		angle = -angle;
 	}

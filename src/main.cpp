@@ -31,7 +31,7 @@
 #include "Paddle.h"
 #include "Ball.h"
 #include "Table.h"
-#include "main.h"
+#include "PingPong.h"
 
 using namespace glm;
 using namespace std;
@@ -233,12 +233,8 @@ int main(int argc, char** argv)
 
 		
 		paddle.draw(shader);
-		{//Paddle coords
-			mat4 transform = mat4(1.f);
-			transform = rotate(transform, radians(90.f), vec3(1, 0, 0));
-			paddle.move(vec2(mouseScreenDiff.x,-mouseScreenDiff.y));
-			mouseScreenDiff = vec2(0);
-		}
+		paddle.move(vec2(mouseScreenDiff.x,-mouseScreenDiff.y));
+		mouseScreenDiff = vec2(0);
 		//paddle.pos = paddle.pos + vec3(0.1*seconds);
 		ball.update(seconds);
 		if (keys[GLFW_KEY_SPACE])
