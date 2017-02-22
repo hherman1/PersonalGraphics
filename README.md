@@ -27,3 +27,7 @@ This should build just like any other project. If it doesnt build when configuri
 ## Browsing Source
 
 A lot of the files in `src/` are unused. `CMakeLists.txt` lists all the used files.
+
+##Weird things
+
+To build we download SOIL from a zip that is checked into this repo, because the SOIL servers were failing to download, and we couldnt build.
