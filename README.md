@@ -18,6 +18,7 @@ The scene and interactions all happen in main.cpp, by preference.
 * Space: Launch the ball.
 * Play against yourself by bouncing off the wall
 * Or off the floor! (or other walls)
+* Your volleys are automatically tracked!
 
 ##Building
 
