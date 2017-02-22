@@ -3,6 +3,7 @@
 #include <string>
 #include "Graphics.h"
 
+//No cubemap support. 
 class Texture
 {
 public:

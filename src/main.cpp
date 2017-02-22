@@ -268,7 +268,7 @@ int main(int argc, char** argv)
 
 		//need to unbind and reset viewport after
 		standard_shader::setupDepthShader(depthShader, depthTexture, light);
-
+		
 		//draw 
 		paddle.draw(depthShader);
 		ball.draw(depthShader);
@@ -279,6 +279,8 @@ int main(int argc, char** argv)
 		//utils::displayTexture(depthTexture.texture());
 		
 		shader.use();
+		/*shader.setUniform("camera_view", light.view());
+		shader.setUniform("camera_projection", light.proj());*/
 		standard_shader::setSpotightMatrices(shader, light);
 		glActiveTexture(GL_TEXTURE0);
 		depthTexture.texture().bind();
