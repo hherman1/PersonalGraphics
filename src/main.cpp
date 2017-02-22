@@ -220,20 +220,7 @@ int main(int argc, char** argv)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/*
-		for (int i = 0; i < 10; i++) {
-			mat4 model;
-			model = translate(model, cubePositions[i]);
-			//model = glm::rotate(model, (float)radians(rotation), glm::vec3(1.0f, 1.0f, 0.0f));
-			model = scale(model, vec3(0.5f, 0.5f, 0.5f));
 
-			standard_shader::setModel(shader, model);
-
-
-			shared_ptr<ArrayMesh> cube = utils::getCube();
-			standard_shader::drawArrayMesh(*cube);
-		}
-		*/
 		if (keys[GLFW_KEY_A]) {
 			light.position.x -= 1 * seconds;
 		}
@@ -261,14 +248,20 @@ int main(int argc, char** argv)
 			vec3 paddleChange = paddle.pos - oldPos;
 
 			if (ballDir == 1) {
-				ball.dir *= -1;
+				ball.dir.z *= -1;
 
 			}
-			ball.dir += (paddleChange/seconds)*vec3(0.05);
-			//ball.dir.y +=length(paddleChange)/seconds;
+			ball.dir += (paddleChange/seconds)*vec3(0.1,0,0.05);
+			ball.dir.y += 0.05*length(paddleChange)/seconds;
 
 			ball.pos.z = paddle.pos.z - 0.15;
 
+		}
+		//net hit?
+		if (ball.pos.y < 0.2 && abs(ball.pos.z) < 0.03) {
+			ball.dir.z *= -1;
+			ball.pos.z = sign(ball.pos.z) * 0.03 + sign(ball.pos.z) * BALL_RADIUS;
+			ball.dir *= 0.1;
 		}
 		if (keys[GLFW_KEY_SPACE])
 			ball.launch();
@@ -284,7 +277,7 @@ int main(int argc, char** argv)
 		depthTexture.unbind();
 		utils::resetViewport();
 		//utils::displayTexture(depthTexture.texture());
-
+		
 		shader.use();
 		standard_shader::setSpotightMatrices(shader, light);
 		glActiveTexture(GL_TEXTURE0);
