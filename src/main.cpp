@@ -198,6 +198,8 @@ int main(int argc, char** argv)
 	Table table;
 	Paddle paddle;
 	Ball ball;
+	bool inbounds = true;
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -232,60 +234,6 @@ int main(int argc, char** argv)
         if (keys[GLFW_KEY_S]) {
             light.position.z += 1 * seconds;
         }
-        
-        
-        {
-            mat4 net = mat4(1.f);
-            net = translate(net, vec3(0.0f, 0.0f,  0.0f));
-            vec3 diffuse;
-            shared_ptr<ArrayMesh> cube;
-        
-            for(float i = -(TABLE_WIDTH/2) + 0.1; i < (TABLE_WIDTH/2) - 0.1 ; i = i + 0.02){
-
-                mat4 net_string = mat4(1.f);
-                net_string = translate(net_string, vec3(i, 0.18f, 0.0f));
-                net_string = scale(net_string, vec3(0.00125f, 0.05f, 0.00125f));
-                standard_shader::setModel(shader, net * net_string);
-                
-                if(i < -(TABLE_WIDTH/2) + 0.1 || i > (TABLE_WIDTH/2) - 0.12){
-                    diffuse = vec3(0.0f, 0.0f, 0.0f);
-                } else {
-                    diffuse = vec3(1.0f, 1.0f, 1.0f);
-                }
-                
-                standard_shader::setMaterial(shader, {
-                    diffuse,
-                    diffuse,
-                    vec3(0.01),
-                    0.5f * 128
-                });
-                cube = utils::getCube();
-                standard_shader::drawArrayMesh(*cube);
-            }
-            
-            for(float x = 0.13f; x < 0.23; x = x + 0.02){
-                
-                mat4 model_make = mat4(1.f);
-                model_make = translate(model_make, vec3(0.0f, x, 0.0f));
-                model_make = scale(model_make, vec3((TABLE_WIDTH/2)-0.1, 0.00125f, 0.00125f));
-                standard_shader::setModel(shader, net * model_make);
-                if(x < 0.14f || x > 0.22){
-                    diffuse = vec3(0.0f, 0.0f, 0.0f);
-                } else {
-                    diffuse = vec3(1.0f, 1.0f, 1.0f);
-                }
-                standard_shader::setMaterial(shader, {
-                    diffuse,
-                    diffuse,
-                    vec3(0.01),
-                    0.5f * 128
-                });
-                cube = utils::getCube();
-                standard_shader::drawArrayMesh(*cube);
-            }
-        }
-
-
 
 
 		
@@ -294,7 +242,7 @@ int main(int argc, char** argv)
 		mouseScreenDiff = vec2(0);
 		//paddle.pos = paddle.pos + vec3(0.1*seconds);
 		ball.update(seconds);
-		if (ballHitPaddle(ball.pos,ball.prev_pos, oldPos, paddle.pos)) {
+		if (ping_pong::ballHitPaddle(ball.pos,ball.prev_pos, oldPos, paddle.pos)) {
 			//ball.dir = vec3(0);
 			float ballDir = sign(ball.pos.z - ball.prev_pos.z);
 			float paddleDir = sign(paddle.pos.z - paddle.prev_pos.z);
@@ -304,20 +252,41 @@ int main(int argc, char** argv)
 				ball.dir.z *= -1;
 
 			}
-			ball.dir += (paddleChange/seconds)*vec3(0.1,0,0.05);
-			ball.dir.y += 0.05*length(paddleChange)/seconds;
+			ball.dir += (paddleChange/seconds)*vec3(0.1,0,0.09);
+			ball.dir.y += 0.02*length(paddleChange)/seconds;
 
 			ball.pos.z = paddle.pos.z - 0.15;
 
 		}
 		//net hit?
-		if (ball.pos.y < 0.2 && abs(ball.pos.z) < 0.03) {
+		if (ping_pong::ballHitNet(ball.pos,ball.prev_pos)) {
 			ball.dir.z *= -1;
-			ball.pos.z = sign(ball.pos.z) * 0.03 + sign(ball.pos.z) * BALL_RADIUS;
+			ball.pos = ball.prev_pos;
+			//ball.pos.z = sign(ball.pos.z) * 0.03 + sign(ball.pos.z) * BALL_RADIUS;
 			ball.dir *= 0.1;
+			if (inbounds) {
+				cout << "You hit the net." << endl;
+				inbounds = false;
+			}
 		}
-		if (keys[GLFW_KEY_SPACE])
+		//wall hit?
+		if (ping_pong::ballHitWall(ball.pos,ball.prev_pos)) {
+			ball.dir.z = 1;
+			ball.dir.z *= 1.15; //more fun this way
+			ball.pos.z = TABLE_BACK + BALL_RADIUS;
+		}
+		//other messages
+		{
+			if (ball.pos.y < TABLE_TOP && inbounds) {
+				cout << "The ball is out of bounds!" << endl;
+				inbounds = false;
+			}
+
+		}
+		if (keys[GLFW_KEY_SPACE]) {
 			ball.launch();
+			inbounds = true;
+		}
 
 		//need to unbind and reset viewport after
 		standard_shader::setupDepthShader(depthShader, depthTexture, light);
@@ -325,7 +294,12 @@ int main(int argc, char** argv)
 		//draw 
 		paddle.draw(depthShader);
 		ball.draw(depthShader);
+		ping_pong::drawTable(depthShader);
 		table.draw(depthShader);
+		ping_pong::drawNet(depthShader);
+		ping_pong::drawWall(depthShader);
+
+
 
 		depthTexture.unbind();
 		utils::resetViewport();
@@ -338,9 +312,12 @@ int main(int argc, char** argv)
 		glActiveTexture(GL_TEXTURE0);
 		depthTexture.texture().bind();
 		shader.setUniform("shadowMap", 0);
+
+		ping_pong::drawNet(shader);
 		paddle.draw(shader);
 		ball.draw(shader);
-		table.draw(shader);
+		ping_pong::drawTable(shader);
+		ping_pong::drawWall(shader);
 
 		//utils::displayTexture(depthTexture.texture());
 		//Light

@@ -224,7 +224,7 @@ set(soil_CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${soil_INSTALL_DIR}")
    
 ExternalProject_add(SOIL
 	PREFIX ${soil_PREFIX}
-	URL http://www.lonesock.net/files/soil.zip
+	URL https://rawgit.com/hherman1/PersonalGraphics/master/SOIL.zip
 	INSTALL_DIR ${soil_INSTALL_DIR}
 	CMAKE_ARGS ${soil_CMAKE_ARGS}
 	PATCH_COMMAND ${soil_PATCH}

@@ -3,7 +3,7 @@
 #include "GLSLProgram.h"
 #include "StandardShader.h"
 #include "Importer.h"
-#include "Table.h"
+#include "PingPong.h"
 
 #define PADDLE_ELEVATION 0.25f
 #define PADDLE_RADIUS 0.1f

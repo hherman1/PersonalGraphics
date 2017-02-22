@@ -8,6 +8,8 @@
 namespace utils {
 	void displayTexture(Texture& tex);
 	void resetViewport();
+	bool bounded(glm::vec3 vec, glm::vec3 min, glm::vec3 max);
+	bool bounded(float f, float min, float max);
 	std::shared_ptr<IndexedMesh> getSquare();
 	std::shared_ptr<ArrayMesh> getCube();
 	void clean();

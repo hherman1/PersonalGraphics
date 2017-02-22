@@ -1,10 +1,18 @@
 #include "Utils.h"
 using namespace std;
 using namespace basicgraphics;
+using namespace glm;
 namespace utils {
 
 	void resetViewport() {
 		glViewport(0, 0, 1920, 1080);
+	}
+
+	bool bounded(vec3 vec, vec3 min, vec3 max) {
+		return clamp(vec, min, max) == vec;
+	}
+	bool bounded(float f, float min, float max) {
+		return clamp(f, min, max) == f;
 	}
 
 	// The square should be accessed through getSquare, and will auto-load if not loaded. 
@@ -13,11 +21,11 @@ namespace utils {
 	shared_ptr<IndexedMesh> _square = NULL;
 	void loadSquare() {
 		GLfloat vertices[] = {
-			// Positions          // Colors           // Texture Coords
-			1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-			1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
+			// Positions          // Norms           // Texture Coords
+			1.0f,  1.0f, 0.0f,   0.f, 0.0f, 1.0f,   1.0f, 1.0f,   // Top Right
+			1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,   // Bottom Right
 			-1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-			-1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
+			-1.0f,  1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f    // Top Left 
 		};
 		GLuint indices[] = {  // Note that we start from 0!
 			0, 1, 2,

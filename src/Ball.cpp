@@ -1,5 +1,5 @@
 #include "Ball.h"
-#include "Table.h"
+#include "PingPong.h"
 
 using namespace basicgraphics;
 using namespace glm;
@@ -45,12 +45,13 @@ void Ball::update(float seconds)
 	pos = pos + (seconds*dir) +  dir * (0.5f * seconds * seconds);
 	if (shouldBounce()) {
 		pos.y = TABLE_TOP + BALL_RADIUS;
-		dir.y = dir.y * (-0.9f);
+		dir *= vec3(0.95f,-0.9f,0.95f);
+		//dir.y = dir.y * (-0.9f);
 	}
 }
 
 void Ball::launch()
 {
 	pos = vec3(0, TABLE_TOP + BALL_RADIUS + 0.5, -TABLE_LENGTH / 2);
-	dir = vec3(0, 0.25, TABLE_LENGTH/3);
+	dir = vec3(0, 0.4, TABLE_LENGTH/2);
 }

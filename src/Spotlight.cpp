@@ -17,6 +17,7 @@ Spotlight::~Spotlight()
 
 glm::mat4 Spotlight::proj() {
 	return orth;
+	//return perspective(45.f, 1920.f / 1080.f, 0.5f, 6.f);
 }
 glm::mat4 Spotlight::view() {
 	if (normalize(lookAt - position) == -vec3(0, 1, 0)) {
