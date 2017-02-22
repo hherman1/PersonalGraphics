@@ -29,6 +29,9 @@ void Table::draw(basicgraphics::GLSLProgram & shader)
 	drawNet(shader);
 	drawLegs(shader);
 }
+void Table::trump() {
+	_trump = !_trump;
+}
 void Table::drawLegs(basicgraphics::GLSLProgram & shader) {
 
 	shared_ptr<ArrayMesh> cube = utils::getCube();
@@ -81,16 +84,19 @@ void Table::drawBoard(basicgraphics::GLSLProgram & shader)
 void Table::drawWall(basicgraphics::GLSLProgram & shader)
 {
 
-    
-    standard_shader::setTexture(shader, trump_texture);
+	if (_trump) {
+		standard_shader::setTexture(shader, trump_texture);
+	}
+	else {
+		standard_shader::setTexture(shader, white_texture);
+		standard_shader::setMaterial(shader, table_mat);
+	}
     //ping_pong::drawFloor(shader);
     shared_ptr<ArrayMesh> wall = utils::getCube();
     mat4 model;
     model = translate(model, vec3(0, TABLE_WALL_HEIGHT / 2 + TABLE_TOP, TABLE_BACK));
     model = scale(model, vec3(TABLE_WIDTH / 2, TABLE_WALL_HEIGHT / 2, 0.001f));
     standard_shader::setModel(shader, model);
-    //standard_shader::setMaterial(shader, table_mat);
-    standard_shader::setTexture(shader, trump_texture);
     standard_shader::drawArrayMesh(*wall);
 }
 

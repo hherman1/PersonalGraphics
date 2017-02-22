@@ -38,6 +38,7 @@ using namespace std;
 using namespace basicgraphics;
 
 
+int actions[1024];
 bool keys[1024];
 int w_width = 1920;
 int w_height = 1080;
@@ -46,6 +47,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
 	// When a user presses the escape key, we set the WindowShouldClose property to true, 
 	// closing the application
+	actions[key] = action;
 	if (action == GLFW_PRESS)
 		keys[key] = true;
 	else if (action == GLFW_RELEASE)
@@ -201,6 +203,7 @@ int main(int argc, char** argv)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	wood_texture.unbind();
 
+
 	vec3 ball_pos;
 	
 	Table table;
@@ -208,13 +211,14 @@ int main(int argc, char** argv)
 	Ball ball;
 	bool inbounds = true;
 	int volley = 0;
-
+	bool tPressed = false;
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
 
 		float seconds = clock.tick();
 		rotation += 180*seconds ;
+
 
 		//Debug mode only.
 		//camera.pos = 3.f * aim.front;
@@ -333,6 +337,13 @@ int main(int argc, char** argv)
 		if (keys[GLFW_KEY_SPACE]) {
 			ball.launch();
 			inbounds = true;
+		}
+		if (keys[GLFW_KEY_T] && !tPressed) {
+			table.trump();
+			tPressed = true;
+		} 
+		if (!keys[GLFW_KEY_T]) {
+			tPressed = false;
 		}
 
 		//need to unbind and reset viewport after

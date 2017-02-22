@@ -34,7 +34,9 @@ public:
 	Table();
 	~Table();
 	virtual void draw(basicgraphics::GLSLProgram &shader);
+	void trump();
 protected:
+	bool _trump = false;
 	void drawWall(basicgraphics::GLSLProgram & shader);
 	void drawLegs(basicgraphics::GLSLProgram & shader);
 
