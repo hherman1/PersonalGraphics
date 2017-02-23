@@ -28,13 +28,11 @@ set (SHADERS ${SHADERS_BASIC} ${SHADERS_DEPTH} ${SHADERS_DEPTH_CUBEMAP} ${SHADER
 file (GLOB IMAGES resources/*.jpg resources/*.png)
 file (GLOB MODELS resources/*.obj)
 
-set (SOURCEFILES 
-		src/main.cpp
+set (ENGINE_SOURCE
 		src/glad/src/glad.c
 		src/GLSLProgram.cpp
 		src/Mesh.cpp
 		src/Texture.cpp
-		src/Utils.cpp
 		src/Clock.cpp
 		src/Framebuffer.cpp
 		src/DepthTexture.cpp
@@ -42,20 +40,14 @@ set (SOURCEFILES
 		src/Camera.cpp
 		src/Light.cpp
 		src/Importer.cpp
-		src/StandardShader.cpp
-		src/Paddle.cpp
-		src/Ball.cpp
-		src/Table.cpp
-		src/PingPong.cpp
 		src/DepthCubemap.cpp
-		src/Texture2D.cpp)
-
-set (HEADERFILES 
+		src/Texture2D.cpp
+)
+set (ENGINE_HEADERS
 		src/Graphics.h
 		src/GLSLProgram.h
 		src/Mesh.h
 		src/Texture.h
-		src/Utils.h
 		src/Clock.h
 		src/Framebuffer.h
 		src/DepthTexture.h
@@ -63,13 +55,36 @@ set (HEADERFILES
 		src/Camera.h
 		src/Light.h
 		src/Importer.h
-		src/StandardShader.h
+		src/DepthCubemap.h
+		src/Texture2D.h
+)
+set (PINGPONG_SOURCE
+		src/main.cpp
+		src/Paddle.cpp
+		src/Ball.cpp
+		src/Table.cpp
+		src/PingPong.cpp
+)
+set (PINGPONG_HEADERS
 		src/Paddle.h
 		src/Ball.h
 		src/Table.h
 		src/PingPong.h
-		src/DepthCubemap.h
-		src/Texture2D.h)
+)
+set (OTHER_SOURCE 
+		src/Utils.cpp
+		src/StandardShader.cpp
+		)
+set (OTHER_HEADERS
+		src/Utils.h
+		src/StandardShader.h
+)
+set (SOURCEFILES ${ENGINE_SOURCE} ${PINGPONG_SOURCE} ${OTHER_SOURCE})
+
+set (HEADERFILES  ${ENGINE_HEADERS} ${PINGPONG_HEADERS} ${OTHER_HEADERS})
+
+source_group("Source Files\\Utils" FILES ${OTHER_SOURCE})
+source_group("Header Files\\Utils" FILES ${OTHER_HEADERS})
 
 #source_group("Header Files" FILES ${HEADERFILES})
 source_group("Shaders" FILES ${SHADERS_OTHER})
@@ -322,19 +337,25 @@ SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIRECTORY}")
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIRECTORY}")
 
 #Add executable target
-add_executable(Basic_Graphics ${SOURCEFILES} ${HEADERFILES})
+#add_executable(Basic_Graphics ${SOURCEFILES} ${HEADERFILES})
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Basic_Graphics)
-set_target_properties(Basic_Graphics PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${OUTPUT_DIRECTORY})
 
-target_link_libraries(${PROJECT_NAME} ${GLFW_LIBRARY} ${ZLIB_LIBRARIES} ${ASSIMP_LIBRARY} ${SOIL_LIBRARY} ${OPENGL_LIBRARIES} ${LIBS_ALL})#${GLEW_LIBRARIES} ${LIBS_ALL})
-add_dependencies(${PROJECT_NAME} glfw assimp SOIL Resources)
 
 
 # Organize folder structure for Xcode, Visual Studio, etc.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 
+#attempting to separate the pieces.
+add_library(PersonalGraphics ${ENGINE_SOURCE} ${ENGINE_HEADERS} ${OTHER_HEADERS} ${OTHER_SOURCE})
+
+add_executable(PingPong ${PINGPONG_SOURCE} ${PINGPONG_HEADERS})
+target_link_libraries(PingPong PersonalGraphics ${GLFW_LIBRARY} ${ZLIB_LIBRARIES} ${ASSIMP_LIBRARY} ${SOIL_LIBRARY} ${OPENGL_LIBRARIES} ${LIBS_ALL})
+
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT PingPong)
+set_target_properties(PingPong PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${OUTPUT_DIRECTORY})
+
+add_dependencies(PingPong glfw assimp SOIL Resources PersonalGraphics)
 
 add_custom_target(Resources ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/resources ${OUTPUT_DIRECTORY}
