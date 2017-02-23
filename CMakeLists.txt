@@ -42,6 +42,7 @@ set (ENGINE_SOURCE
 		src/Importer.cpp
 		src/DepthCubemap.cpp
 		src/Texture2D.cpp
+		src/Cubemap.cpp
 )
 set (ENGINE_HEADERS
 		src/Graphics.h
@@ -57,6 +58,7 @@ set (ENGINE_HEADERS
 		src/Importer.h
 		src/DepthCubemap.h
 		src/Texture2D.h
+		src/Cubemap.h
 )
 set (PINGPONG_SOURCE
 		src/main.cpp
@@ -74,10 +76,12 @@ set (PINGPONG_HEADERS
 set (OTHER_SOURCE 
 		src/Utils.cpp
 		src/StandardShader.cpp
+		src/ShaderRegistry.cpp
 		)
 set (OTHER_HEADERS
 		src/Utils.h
 		src/StandardShader.h
+		src/ShaderRegistry.h
 )
 set (SOURCEFILES ${ENGINE_SOURCE} ${PINGPONG_SOURCE} ${OTHER_SOURCE})
 
