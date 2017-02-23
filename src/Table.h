@@ -5,7 +5,7 @@
 #include "Utils.h"
 #include <memory>
 #include "Mesh.h"
-
+#include "Texture2D.h"
 
 #define TABLE_LENGTH 2.74f // meters
 #define TABLE_WIDTH 1.525f // meters
@@ -43,8 +43,8 @@ protected:
 	void drawBoard(basicgraphics::GLSLProgram & shader);
 
 	void drawNet(basicgraphics::GLSLProgram & shader);
-	Texture trump_texture;
-	Texture white_texture;
+	Texture2D trump_texture;
+	Texture2D white_texture;
 
 	Material table_mat = {
 		vec3(0.0,0.1,0.06),

@@ -7,6 +7,7 @@
 #include "Utils.h"
 #include "Spotlight.h"
 #include "DepthTexture.h"
+#include "DepthCubemap.h"
 
 #include <vector>
 
@@ -33,11 +34,13 @@ namespace standard_shader {
 	void drawIndexedMesh(IndexedMesh& mesh);
 	void drawIndexedGPUReference(IndexedGPUMeshReference m);
 	void drawIndexedMeshes(std::vector<IndexedGPUMeshReference> meshes);
-	void setShadowMap(basicgraphics::GLSLProgram & shader, Texture & shadowMap);
-	void setTexture(basicgraphics::GLSLProgram & shader, Texture & texture);
+	void setShadowMap(basicgraphics::GLSLProgram & shader, Texture2D & shadowMap);
+	void setTexture2D(basicgraphics::GLSLProgram & shader, Texture2D & texture);
 	void drawArrayMesh(ArrayMesh& mesh);
 	void setSpotightMatrices(basicgraphics::GLSLProgram & shader, Spotlight l);
 	//need to unbind and reset viewport after
 	void setupDepthShader(basicgraphics::GLSLProgram & shader, DepthTexture & dt, Spotlight l);
+	// uses light.farPlane, and others. calls use() on shader
+	void setupDepthCubemapShader(basicgraphics::GLSLProgram & shader, DepthCubemap & dcm, Light l);
 };
 

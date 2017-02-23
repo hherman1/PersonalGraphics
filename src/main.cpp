@@ -154,6 +154,12 @@ int main(int argc, char** argv)
 	depthShader.compileShader("depth.frag");
 	depthShader.link();
 
+	GLSLProgram depthCubemapShader;
+	depthCubemapShader.compileShader("depth_cubemap.vert");
+	depthCubemapShader.compileShader("depth_cubemap.geom");
+	depthCubemapShader.compileShader("depth_cubemap.frag");
+	depthCubemapShader.link();
+
 	
 	/*Texture gorilla;
 	gorilla.loadImage("gorilla.jpg");
@@ -168,6 +174,7 @@ int main(int argc, char** argv)
 
 	
 	DepthTexture depthTexture;
+	DepthCubemap depthCubemap;
 
 	Clock clock;
 
@@ -195,9 +202,9 @@ int main(int argc, char** argv)
 		vec3(1.0f, 0.5f, 0.31f),vec3(1.0f, 0.5f, 0.31f),vec3(0.5f, 0.5f, 0.5f),32.0f
 	};
 
-	Texture white_texture;
+	Texture2D white_texture;
 	white_texture.whiteTexture();
-	Texture wood_texture;
+	Texture2D wood_texture;
 	wood_texture.loadImage("wood2.jpg");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -348,8 +355,13 @@ int main(int argc, char** argv)
 
 		//need to unbind and reset viewport after
 		standard_shader::setupDepthShader(depthShader, depthTexture, light);
-		
+		//standard_shader::setupDepthCubemapShader(depthCubemapShader,depthCubemap,light);
 		//draw 
+		//paddle.draw(depthCubemapShader);
+		//ball.draw(depthCubemapShader);
+		//table.draw(depthCubemapShader);
+		//ping_pong::drawFloor(depthCubemapShader);
+
 		paddle.draw(depthShader);
 		ball.draw(depthShader);
 		table.draw(depthShader);
@@ -358,27 +370,28 @@ int main(int argc, char** argv)
 		//ping_pong::drawRoomWalls(depthShader);
 
 
-
+		//depthCubemap.unbind();
 		depthTexture.unbind();
 		utils::resetViewport();
-		//utils::displayTexture(depthTexture.texture());
-		
+		utils::displayTexture2D(depthTexture.texture());
+		//utils::displayTexture(depthCubemap.cubemap());
+
 		shader.use();
 		/*shader.setUniform("camera_view", light.view());
 		shader.setUniform("camera_projection", light.proj());*/
 		standard_shader::setSpotightMatrices(shader, light);
 		standard_shader::setShadowMap(shader, depthTexture.texture());
-		standard_shader::setTexture(shader, white_texture);
+		standard_shader::setTexture2D(shader, white_texture);
 		//utils::displayTexture(white_texture);
 
 		paddle.draw(shader);
 		ball.draw(shader);
 		table.draw(shader);
 
-		standard_shader::setTexture(shader, wood_texture);
+		standard_shader::setTexture2D(shader, wood_texture);
 		ping_pong::drawFloor(shader);
 
-		standard_shader::setTexture(shader, white_texture);
+		standard_shader::setTexture2D(shader, white_texture);
 		ping_pong::drawRoomWalls(shader);
 
 		//utils::displayTexture(depthTexture.texture());

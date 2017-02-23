@@ -1,8 +1,7 @@
 #include "DepthCubemap.h"
 
-using namespace glm;
 using namespace std;
-
+using namespace glm;
 
 const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
@@ -33,6 +32,13 @@ namespace depthcubemap {
 	}
 }
 
+GLuint DepthCubemap::cubemap() {
+	return _cubemap;
+}
+void DepthCubemap::unbind() {
+	_framebuffer.unbind();
+}
+
 DepthCubemap::DepthCubemap():
 	_framebuffer()
 {
@@ -56,6 +62,9 @@ DepthCubemap::DepthCubemap():
 	glReadBuffer(GL_NONE);
 	_framebuffer.unbind();
 
+}
+void DepthCubemap::bind() {
+	_framebuffer.bind();
 }
 
 

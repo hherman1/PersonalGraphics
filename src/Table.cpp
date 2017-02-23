@@ -24,7 +24,7 @@ Table::~Table()
 void Table::draw(basicgraphics::GLSLProgram & shader)
 {
 	drawWall(shader);
-	standard_shader::setTexture(shader, white_texture);
+	standard_shader::setTexture2D(shader, white_texture);
 	drawBoard(shader);
 	drawNet(shader);
 	drawLegs(shader);
@@ -85,10 +85,10 @@ void Table::drawWall(basicgraphics::GLSLProgram & shader)
 {
 
 	if (_trump) {
-		standard_shader::setTexture(shader, trump_texture);
+		standard_shader::setTexture2D(shader, trump_texture);
 	}
 	else {
-		standard_shader::setTexture(shader, white_texture);
+		standard_shader::setTexture2D(shader, white_texture);
 		standard_shader::setMaterial(shader, table_mat);
 	}
     //ping_pong::drawFloor(shader);

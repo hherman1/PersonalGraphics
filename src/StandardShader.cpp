@@ -72,12 +72,12 @@ namespace standard_shader {
 		}
 	}
 
-	void setShadowMap(basicgraphics::GLSLProgram & shader, Texture & shadowMap) {
+	void setShadowMap(basicgraphics::GLSLProgram & shader, Texture2D & shadowMap) {
 		glActiveTexture(GL_TEXTURE0);
 		shadowMap.bind();
 		shader.setUniform("shadowMap", 0);
 	}
-	void setTexture(basicgraphics::GLSLProgram & shader, Texture & texture) {
+	void setTexture2D(basicgraphics::GLSLProgram & shader, Texture2D & texture) {
 		glActiveTexture(GL_TEXTURE1);
 		texture.bind();
 		shader.setUniform("_texture", 1);
@@ -98,4 +98,29 @@ void standard_shader::setupDepthShader(GLSLProgram & shader, DepthTexture & dt, 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	standard_shader::setSpotightMatrices(shader, l);
+}
+
+//depth cubemap
+namespace standard_shader {
+
+	void setPointlightMatrices(GLSLProgram & shader, Light l) {
+		vector<mat4> shadowTransforms = depthcubemap::genTransforms(l.position);
+		for (int i = 0; i < 6; i++) {
+			string name = "shadowMatrices[" + to_string(i) + "]";
+			shader.setUniform(name.c_str(), shadowTransforms[i]);
+		}
+	}
+	void setCubemapPointlight(basicgraphics::GLSLProgram  & shader, Light l) {
+		setPointlightMatrices(shader, l);
+		shader.setUniform("lightPos", l.position);
+		shader.setUniform("far_plane", l.farPlane);
+	}
+	void setupDepthCubemapShader(basicgraphics::GLSLProgram  & shader, DepthCubemap & dcm, Light l) {
+		shader.use();
+		dcm.bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		setCubemapPointlight(shader, l);
+
+		//dcm.setViewport();
+	}
 }

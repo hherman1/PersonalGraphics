@@ -8,24 +8,16 @@ class Texture
 {
 public:
 	Texture();
-	static void bind(GLuint texname);
-	void bind();
-	static void unbind();
-	int width();
+	static void bind(GLenum target, GLuint texname);
+	void bind(GLenum target);
+	static void unbind(GLenum target);
 	Texture(Texture&& move) = delete;
 	Texture(const Texture& that) = delete;
 
 
-	int height();
-
 	GLuint id();
-
-	void loadImage(std::string filename);
-	//sets the texture to be a plain white texture. useful for untextured objects. 
-	void whiteTexture();
 	~Texture();
 protected:
-	int _width, _height;
 	GLuint _texture;
 };
 

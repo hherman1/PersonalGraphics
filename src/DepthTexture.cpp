@@ -46,10 +46,10 @@ void DepthTexture::setViewport()
 void DepthTexture::unbind()
 {
 	Framebuffer::unbind();
-	Texture::unbind();
+	Texture2D::unbind();
 }
 
-Texture& DepthTexture::texture()
+Texture2D& DepthTexture::texture()
 {
 	return _texture;
 }

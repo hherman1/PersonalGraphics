@@ -1,12 +1,12 @@
 #pragma once
 #include "Graphics.h"
 #include "Mesh.h"
-#include "Texture.h"
+#include "Texture2D.h"
 #include "GLSLProgram.h"
 #include "Light.h"
 #include <memory>
 namespace utils {
-	void displayTexture(Texture& tex);
+	void displayTexture2D(Texture2D& tex);
 	void resetViewport();
 	bool bounded(glm::vec3 vec, glm::vec3 min, glm::vec3 max);
 	bool bounded(float f, float min, float max);

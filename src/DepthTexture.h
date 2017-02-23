@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include "Graphics.h"
-#include "Texture.h"
+#include "Texture2D.h"
 #include "Framebuffer.h"
 #include "GLSLProgram.h"
 #include "Light.h"
@@ -26,10 +26,10 @@ public:
 	void bind();
 	void setViewport();
 	static void unbind();
-	Texture& texture();
+	Texture2D& texture();
 protected:
 	Framebuffer _framebuffer;
-	Texture _texture;
+	Texture2D _texture;
 
 };
 

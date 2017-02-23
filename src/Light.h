@@ -17,6 +17,8 @@ public:
 	float linear = 0.09;//0.001f;
 	float quadratic = 0.032;//0.00032;
 
+	float farPlane = 5;
+
 	float cutOff = -1; // Point light
 };
 

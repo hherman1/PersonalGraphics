@@ -47,31 +47,31 @@ namespace utils {
 	}
 	//Utils and state needed to display a texture on the square mesh center screen. Has a custom shader.
 	// This namespace is internal only, however there is a function right after it which utilizes its machinery.
-	namespace display_texture {
-		GLSLProgram texShader;
-		bool texShader_loaded = false;
+	namespace display_texture2D {
+		GLSLProgram tex2DShader;
+		bool tex2DShader_loaded = false;
 		void loadShader() {
-			texShader_loaded = true;
-			texShader.compileShader("texShader.vert");
-			texShader.compileShader("texShader.frag");
-			texShader.link();
+			tex2DShader_loaded = true;
+			tex2DShader.compileShader("textureUtil.vert");
+			tex2DShader.compileShader("textureUtil.frag");
+			tex2DShader.link();
 		}
 	}
 	// *DEBUGGING UTIL*
 	// Compiles shader on first call
 	// May also load geometry (of square) on call
-	void displayTexture(Texture& tex) {
-		using namespace display_texture;
-		if (!texShader_loaded) {
+	void displayTexture2D(Texture2D& tex) {
+		using namespace display_texture2D;
+		if (!tex2DShader_loaded) {
 			loadShader();
 		}
 		shared_ptr<Mesh> square = getSquare();
 
-		texShader.use();
+		tex2DShader.use();
 
 		glActiveTexture(GL_TEXTURE0);
 		tex.bind();
-		texShader.setUniform("Texture0", 0);
+		tex2DShader.setUniform("Texture0", 0);
 
 		square->bind();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

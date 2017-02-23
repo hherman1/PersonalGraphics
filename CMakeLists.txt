@@ -15,17 +15,15 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 
-set (SHADERS
-		resources/texture.vert
-		resources/texture.frag
-		resources/basic.vert
-		resources/basic.frag
-		resources/texShader.frag
-		resources/texShader.vert
-		resources/depth.vert
-		resources/depth.frag
+set (SHADERS_BASIC 	resources/basic.vert resources/basic.frag)
+set (SHADERS_DEPTH_CUBEMAP 	resources/depth_cubemap.vert resources/depth_cubemap.frag resources/depth_cubemap.geom)
+set (SHADERS_DEPTH 	resources/depth.vert resources/depth.frag)
+set (SHADERS_UTILS 	resources/textureUtil.frag resources/textureUtil.vert
+					resources/cubemapUtil.frag resources/cubemapUtil.vert )
+set (SHADERS_OTHER
 		resources/unlit.vert
 		resources/unlit.frag)
+set (SHADERS ${SHADERS_BASIC} ${SHADERS_DEPTH} ${SHADERS_DEPTH_CUBEMAP} ${SHADERS_UTILS} ${SHADERS_OTHER})
 
 file (GLOB IMAGES resources/*.jpg resources/*.png)
 file (GLOB MODELS resources/*.obj)
@@ -48,7 +46,9 @@ set (SOURCEFILES
 		src/Paddle.cpp
 		src/Ball.cpp
 		src/Table.cpp
-		src/PingPong.cpp)
+		src/PingPong.cpp
+		src/DepthCubemap.cpp
+		src/Texture2D.cpp)
 
 set (HEADERFILES 
 		src/Graphics.h
@@ -67,10 +67,16 @@ set (HEADERFILES
 		src/Paddle.h
 		src/Ball.h
 		src/Table.h
-		src/PingPong.h)
+		src/PingPong.h
+		src/DepthCubemap.h
+		src/Texture2D.h)
 
 #source_group("Header Files" FILES ${HEADERFILES})
-source_group("Shaders" FILES ${SHADERS})
+source_group("Shaders" FILES ${SHADERS_OTHER})
+source_group("Shaders\\basic" FILES ${SHADERS_BASIC})
+source_group("Shaders\\depth" FILES ${SHADERS_DEPTH})
+source_group("Shaders\\depth_cubemap" FILES ${SHADERS_DEPTH_CUBEMAP})
+source_group("Shaders\\utils" FILES ${SHADERS_UTILS})
 source_group("Images" FILES ${IMAGES})
 source_group("Models" FILES ${MODELS})
 
