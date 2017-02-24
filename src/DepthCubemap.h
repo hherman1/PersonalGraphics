@@ -1,6 +1,7 @@
 #pragma once
 #include "Graphics.h"
 #include "Framebuffer.h"
+#include "Cubemap.h"
 #include <vector>
 
 
@@ -11,14 +12,15 @@ namespace depthcubemap {
 class DepthCubemap
 {
 public:
+	Cubemap & cubemap();
 	//cubemaps are textures
-	GLuint cubemap();
 	void unbind();
 	DepthCubemap();
 	void bind();
+	void setViewport();
 	~DepthCubemap();
 protected:
-	GLuint _cubemap;
+	Cubemap _cubemap;
 	Framebuffer _framebuffer;
 };
 

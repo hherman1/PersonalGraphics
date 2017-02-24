@@ -19,6 +19,6 @@ public:
 
 	float farPlane = 5;
 
-	float cutOff = -1; // Point light
+	float cutOff = -1; // Point _light
 };
 

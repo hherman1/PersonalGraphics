@@ -45,6 +45,8 @@ namespace standard_shader {
 		shader.setUniform("light.linear", light.linear);
 		shader.setUniform("light.quadratic", light.quadratic);
 
+		shader.setUniform("light.farPlane", light.farPlane);
+
 		shader.setUniform("light.cutOff", light.cutOff);
 
 	}
@@ -82,6 +84,11 @@ namespace standard_shader {
 	void setShadowMap(basicgraphics::GLSLProgram & shader, Texture2D & shadowMap) {
 		glActiveTexture(GL_TEXTURE0);
 		shadowMap.bind();
+		shader.setUniform("shadowMap", 0);
+	}
+	void setShadowCubemap(basicgraphics::GLSLProgram & shader, Cubemap & shadowCube) {
+		glActiveTexture(GL_TEXTURE0);
+		shadowCube.bind();
 		shader.setUniform("shadowMap", 0);
 	}
 	void setTexture2D(basicgraphics::GLSLProgram & shader, Texture2D & texture) {
@@ -125,6 +132,7 @@ namespace standard_shader {
 	void setupDepthCubemapShader(basicgraphics::GLSLProgram  & shader, DepthCubemap & dcm, Light l) {
 		shader.use();
 		dcm.bind();
+		dcm.setViewport();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		setCubemapPointlight(shader, l);
 

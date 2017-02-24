@@ -174,3 +174,252 @@ glm::vec3 closestPoint(glm::vec3 & start, glm::vec3 & end, glm::vec3 &pt) {
 		}
 	}
 }
+
+namespace pingponggame {
+	int actions[1024];
+	bool keys[1024];
+
+	int w_width, w_height;
+
+	shared_ptr<Texture2D> wood_texture;
+	shared_ptr<Texture2D> white_texture;
+
+	shared_ptr<Paddle> _paddle;
+	shared_ptr<Ball> _ball;
+	shared_ptr<Table> _table;
+
+	bool inbounds = true;
+	int volley = 0;
+	bool tPressed = false;
+
+	Spotlight _light(vec3(0),vec3(0));
+	Camera _camera(vec3(0),vec3(0),0);
+
+	Spotlight light() {
+		return _light;
+	}
+	Camera camera() {
+		return _camera;
+	}
+
+	struct {
+		double yaw = 0;
+		double pitch = 0;
+		vec3 front = vec3(1, 0, 0);
+	} aim;
+	vec2 mouse;
+	vec2 mouseScreen;
+	vec2 mouseScreenDiff;
+	void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+		GLfloat xoffset = xpos - mouse.x;
+		GLfloat yoffset = mouse.y - ypos; // Reversed since y-coordinates range from bottom to top
+		mouse.x = xpos;
+		mouse.y = ypos;
+
+		mouseScreen.x = xpos / w_width;
+		mouseScreen.y = ypos / w_height;
+
+		mouseScreenDiff.x = xoffset / w_width;
+		mouseScreenDiff.y = yoffset / w_height;
+
+		GLfloat sensitivity = 0.05f;
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
+		aim.yaw += xoffset;
+		aim.pitch -= yoffset;
+		if (aim.pitch > 89.0f)
+			aim.pitch = 89.0f;
+		if (aim.pitch < -89.0f)
+			aim.pitch = -89.0f;
+
+		glm::vec3 front;
+		front.x = cos(glm::radians(aim.pitch)) * cos(glm::radians(aim.yaw));
+		front.y = sin(glm::radians(aim.pitch));
+		front.z = cos(glm::radians(aim.pitch)) * sin(glm::radians(aim.yaw));
+		aim.front = glm::normalize(front);
+	}
+
+	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+	{
+		// When a user presses the escape key, we set the WindowShouldClose property to true, 
+		// closing the application
+		actions[key] = action;
+		if (action == GLFW_PRESS)
+			keys[key] = true;
+		else if (action == GLFW_RELEASE)
+			keys[key] = false;
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+			glfwSetWindowShouldClose(window, GL_TRUE);
+	}
+	void init(GLFWwindow* window, int width, int height) {
+		w_width = width;
+		w_height = height;
+
+		glfwSetKeyCallback(window, key_callback);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetCursorPosCallback(window, mouse_callback);
+		wood_texture.reset(new Texture2D());
+		//wood_texture = Texture2D();
+		wood_texture->bind();
+		wood_texture->loadImage("wood2.jpg");
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		wood_texture->unbind();
+		white_texture.reset(new Texture2D());
+		white_texture->bind();
+		white_texture->whiteTexture();
+
+		_light = Spotlight(vec3(0.5, 1.5 + TABLE_TOP, 0.5), vec3(0, 0, 0));
+		_light.ambient = vec3(0.2f);
+		_light.diffuse = vec3(1.f); // Let's darken the _light a bit to fit the scene
+		_light.specular = vec3(1.0f, 1.0f, 1.0f);
+		_camera = Camera(vec3(0, 1 + TABLE_TOP, 2.25), vec3(0, TABLE_TOP, 0.25), (float)w_width / (float)w_height);
+	
+		_paddle.reset(new Paddle());
+		_table.reset(new Table());
+		_ball.reset(new Ball());
+	}
+	void update(float seconds) {
+		Paddle & paddle = *_paddle;
+		Table & table = *_table;
+		Ball & ball = *_ball;
+		//Debug mode only.
+		//_camera.pos = 3.f * aim.front;
+		//_camera.lookAt = _camera.pos + aim.front * vec3(1,-1,1);
+		//_camera.pos = vec3(0);
+		//_camera.lookAt = aim.front * vec3(1, -1, 1);
+		//_camera.pos.y += TABLE_TOP + 1;
+		vec3 cameraTarget = 0.1f*(paddle.pos + ball.pos) + 0.9f*vec3(0, TABLE_TOP, 0);
+		_camera.lookAt += (cameraTarget - _camera.lookAt)*seconds; //0.1f*(_camera.lookAt - ());
+
+		vec3 oldPos = paddle.pos;
+		paddle.move(vec2(mouseScreenDiff.x, -mouseScreenDiff.y));
+		mouseScreenDiff = vec2(0);
+
+		ball.update(seconds);
+		if (ping_pong::ballHitPaddle(ball.pos, ball.prev_pos, oldPos, paddle.pos)) {
+			//ball.dir = vec3(0);
+			float ballDir = sign(ball.pos.z - ball.prev_pos.z);
+			float paddleDir = sign(paddle.pos.z - paddle.prev_pos.z);
+			vec3 paddleChange = paddle.pos - oldPos;
+
+			if (ballDir == 1) {
+				ball.dir.z *= -1;
+
+			}
+			ball.dir += (paddleChange / seconds)*vec3(0.6, 0, 0.3f);
+			ball.dir.y += 0.05*(length(paddleChange) / seconds + length(ball.dir));
+
+			ball.pos.z = paddle.pos.z - 0.15;
+
+		}
+		//net hit?
+		if (ping_pong::ballHitNet(ball.pos, ball.prev_pos)) {
+			ball.dir.z *= -1;
+			ball.pos = ball.prev_pos;
+			//ball.pos.z = sign(ball.pos.z) * 0.03 + sign(ball.pos.z) * BALL_RADIUS;
+			ball.dir *= 0.1;
+			if (inbounds) {
+				cout << endl << "You hit the net after " << volley << " volleys!" << endl;
+				volley = 0;
+				inbounds = false;
+			}
+		}
+		//wall hit?
+		if (ping_pong::ballHitWall(ball.pos, ball.prev_pos)) {
+			ball.dir.z *= -0.9;
+			ball.pos.z = TABLE_BACK + BALL_RADIUS;
+			volley++;
+			cout << "Volley " << volley << ". ";
+		}
+#define ROOM_WALL_DAMPENER 0.5f
+		//back room wall hit?
+		if (ping_pong::ballHitWall(ball.pos, ball.prev_pos,
+			vec3(FLOOR_LEFT, 0, FLOOR_BACK),
+			vec3(FLOOR_RIGHT, ROOM_WALL_HEIGHT, FLOOR_BACK),
+			vec3(0, 0, 1))) {
+			ball.dir.z *= -ROOM_WALL_DAMPENER;
+			ball.pos.z = FLOOR_BACK + BALL_RADIUS;
+		}
+		//"front room wall" hit?
+		if (ping_pong::ballHitWall(ball.pos, ball.prev_pos,
+			vec3(FLOOR_LEFT, 0, FLOOR_FRONT),
+			vec3(FLOOR_RIGHT, ROOM_WALL_HEIGHT, FLOOR_FRONT),
+			vec3(0, 0, 1))) {
+			ball.dir.z *= -ROOM_WALL_DAMPENER;
+			ball.pos.z = FLOOR_FRONT - BALL_RADIUS;
+		}
+		// left room wall?
+		//bool test = utils::bounded(vec3(-3, 0.5, 1), vec3(-3, 0, 3), vec3(-3, 4, -3));
+		if (ping_pong::ballHitWall(ball.pos, ball.prev_pos,
+			vec3(FLOOR_LEFT, 0, FLOOR_BACK),
+			vec3(FLOOR_LEFT, ROOM_WALL_HEIGHT, FLOOR_FRONT),
+			vec3(1, 0, 0))) {
+			ball.dir.x *= -ROOM_WALL_DAMPENER;
+			ball.pos.x = FLOOR_LEFT + BALL_RADIUS;
+		}
+		//right room wall?
+		if (ping_pong::ballHitWall(ball.pos, ball.prev_pos,
+			vec3(FLOOR_RIGHT, 0, FLOOR_BACK),
+			vec3(FLOOR_RIGHT, ROOM_WALL_HEIGHT, FLOOR_FRONT),
+			vec3(1, 0, 0))) {
+			ball.dir.x *= -ROOM_WALL_DAMPENER;
+			ball.pos.x = FLOOR_RIGHT - BALL_RADIUS;
+		}
+		//other messages
+		{
+			if (ball.pos.y < TABLE_TOP && inbounds) {
+				cout << endl << "The ball is out of bounds! You had " << volley << " volleys!" << endl;
+				volley = 0;
+				inbounds = false;
+			}
+
+		}
+
+		if (keys[GLFW_KEY_A]) {
+			_light.position.x -= 1 * seconds;
+		}
+		if (keys[GLFW_KEY_D]) {
+			_light.position.x += 1 * seconds;
+		}
+		if (keys[GLFW_KEY_W]) {
+			_light.position.z -= 1 * seconds;
+		}
+		if (keys[GLFW_KEY_S]) {
+			_light.position.z += 1 * seconds;
+		}
+		if (keys[GLFW_KEY_Q]) {
+			_light.position.y -= 1 * seconds;
+		}
+		if (keys[GLFW_KEY_E]) {
+			_light.position.y += 1 * seconds;
+		}
+
+		if (keys[GLFW_KEY_SPACE]) {
+			ball.launch();
+			inbounds = true;
+		}
+		if (keys[GLFW_KEY_T] && !tPressed) {
+			table.trump();
+			tPressed = true;
+		}
+		if (!keys[GLFW_KEY_T]) {
+			tPressed = false;
+		}
+	}
+
+	void drawGeometry(basicgraphics::GLSLProgram & shader)
+	{
+		standard_shader::setTexture2D(shader, *white_texture);
+		_paddle->draw(shader);
+		_ball->draw(shader);
+		_table->draw(shader);
+
+		standard_shader::setTexture2D(shader, *wood_texture);
+		ping_pong::drawFloor(shader);
+	}
+
+}
+
+
+

@@ -31,6 +31,8 @@ struct Light {
     float linear;
     float quadratic;
 
+	float farPlane;
+
 	float cutOff;
 };
 
@@ -39,6 +41,7 @@ uniform Light light;
 uniform vec3 camera_view_pos;
 uniform sampler2D shadowMap;
 uniform sampler2D _texture;
+uniform samplerCube shadowCubemap;
 
 vec3 calcLight() {
     vec3 ambient = material.ambient * light.ambient;
@@ -76,8 +79,13 @@ void main()
 	float bias = 0.005;
 	vec3 shadowTexPos = ShadowPos.xyz/ShadowPos.w;
 	shadowTexPos = shadowTexPos*0.5 + 0.5;
-	float closestDepth = texture(shadowMap,shadowTexPos.xy).r;
-	if( shadowTexPos.z - bias > closestDepth) {
+	//float closestDepth = texture(shadowMap,shadowTexPos.xy).r;
+
+	vec3 lightToWorld = WorldPos - light.position;
+	float closestDepth = texture(shadowCubemap,lightToWorld).r;
+	closestDepth *= light.farPlane;
+
+	if( length(lightToWorld) - bias > closestDepth) {
 		shadow = 0.1;
 	}
 	if(shadowTexPos.z > 1) {

@@ -26,7 +26,7 @@ namespace standard_shader {
 		IndexedMesh& mesh;
 		Material& mat;
 	};
-	//Sets projection matrix, view matrix, and view position to camera data.
+	//Sets projection matrix, view matrix, and view position to _camera data.
 	void setCamera(basicgraphics::GLSLProgram & shader, Camera cam);
 	void setMaterial(basicgraphics::GLSLProgram & shader, Material mat);
 	void setLight(basicgraphics::GLSLProgram & shader, Light light);
@@ -37,12 +37,13 @@ namespace standard_shader {
 	void drawIndexedGPUReference(IndexedGPUMeshReference m);
 	void drawIndexedMeshes(std::vector<IndexedGPUMeshReference> meshes);
 	void setShadowMap(basicgraphics::GLSLProgram & shader, Texture2D & shadowMap);
+	void setShadowCubemap(basicgraphics::GLSLProgram & shader, Cubemap & shadowCube);
 	void setTexture2D(basicgraphics::GLSLProgram & shader, Texture2D & texture);
 	void drawArrayMesh(ArrayMesh& mesh);
 	void setSpotightMatrices(basicgraphics::GLSLProgram & shader, Spotlight l);
 	//need to unbind and reset viewport after
 	void setupDepthShader(basicgraphics::GLSLProgram & shader, DepthTexture & dt, Spotlight l);
-	// uses light.farPlane, and others. calls use() on shader
+	// uses _light.farPlane, and others. calls use() on shader
 	void setupDepthCubemapShader(basicgraphics::GLSLProgram & shader, DepthCubemap & dcm, Light l);
 };
 

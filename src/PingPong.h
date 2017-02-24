@@ -38,4 +38,15 @@ namespace ping_pong {
 }
 
 
+namespace pingponggame {
+	void init(GLFWwindow * window, int width, int height);
+	void update(float seconds);
+	//Does not set any shader properties besides textures and model matrices.
+	void drawGeometry(basicgraphics::GLSLProgram & shader);
+
+	Spotlight light();
+	Camera camera();
+}
+
+
 glm::vec3 closestPoint(glm::vec3 & start, glm::vec3 & end, glm::vec3 & pt);
