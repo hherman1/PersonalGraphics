@@ -72,26 +72,40 @@ vec3 calcLight(vec3 WorldPos, vec3 Normal, Material material) {
 	}
 }
 
+vec3 sampleOffsetDirections[20] = vec3[]
+(
+   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+);  
 float calcShadows(vec3 WorldPos) {
-	float shadow = 1.0;
+	float shadow = 0; // no shadowing
 	float bias = 0.005;
-	//vec3 shadowTexPos = ShadowPos.xyz/ShadowPos.w;
-	//shadowTexPos = shadowTexPos*0.5 + 0.5;
-	//float closestDepth = texture(shadowMap,shadowTexPos.xy).r;
 
 	vec3 lightToWorld = WorldPos - light.position;
-	float closestDepth = texture(shadowCubemap,lightToWorld).r;
-	closestDepth *= light.farPlane;
+	float lightDist = length(lightToWorld);
+	float closestDepth;
 
-	if( length(lightToWorld) - bias > closestDepth) {
-		shadow = 0.1;
+	float viewDistance = length(camera_view_pos - WorldPos);
+	float diskRadius = (1.0 + (viewDistance / light.farPlane)) / 150.0;  ;
+	int samples = 20;
+	for(int i = 0; i < samples; i++) {
+		float closestDepth = texture(shadowCubemap,lightToWorld + sampleOffsetDirections[i]*diskRadius).r;
+		closestDepth *= light.farPlane;
+		if(lightDist - bias > closestDepth) {
+			shadow++;
+		}
+		
 	}
+	shadow /= 20;
+
+	closestDepth = texture(shadowCubemap,lightToWorld).r;
+	closestDepth *= light.farPlane;
 	if( closestDepth == light.farPlane) {
-		shadow = 1;
+		shadow = 0;
 	}
-	//if(shadowTexPos.z > 1) {
-	//	shadow = 1;
-	//}
 	return shadow;
 }
 
@@ -107,7 +121,7 @@ void main()
 		discard;
 	}
 
-	float shadow = calcShadows(WorldPos);
+	float shadow = 1-calcShadows(WorldPos);
 	color = shadow * vec4(calcLight(WorldPos,Normal,mat),1);
 	//color = shadow * vec4(calcLight(),1) * texture(_texture,TexCoord);
 } 

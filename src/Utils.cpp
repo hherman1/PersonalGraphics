@@ -217,10 +217,6 @@ namespace utils {
 		}
 		return _cube;
 	}
-	//call before glfwTerminate
-	void clean() {
-		
-	}
 	mat3 normal_model(mat4 model) {
 		return mat3(transpose(inverse(model)));
 	}

@@ -74,20 +74,17 @@ int main(int argc, char** argv)
 	GLFWwindow* window = init();
 	pingponggame::init(window, w_width, w_height);
 
-	
-
-	//Keep these as shared_ptrs so they arent accidentally deallocated.
+	double time = glfwGetTime();
+	cout << "Building shaders. ";
 	shaderregistry::buildAllShaders();
+	cout << "Finished in " << glfwGetTime() - time << " seconds." << endl;
+	//Keep these as shared_ptrs so they arent accidentally deallocated.
 	shared_ptr<GLSLProgram> depthShader = shaderregistry::loadShader(shaderregistry::DEPTH);
 	shared_ptr<GLSLProgram> depthCubemapShader = shaderregistry::loadShader(shaderregistry::DEPTH_CUBEMAP);
 	shared_ptr<GLSLProgram> basicShader = shaderregistry::loadShader(shaderregistry::BASIC);
 	shared_ptr<GLSLProgram> unlitShader = shaderregistry::loadShader(shaderregistry::UNLIT);
 	shared_ptr<GLSLProgram> deferredGeomShader = shaderregistry::loadShader(shaderregistry::DEFERRED_GEOM);
 	shared_ptr<GLSLProgram> deferredLightShader = shaderregistry::loadShader(shaderregistry::DEFERRED_LIGHT);
-
-	shared_ptr<IndexedMeshes> sphere = importer::loadModel("sphere.obj");
-	shared_ptr<IndexedMeshes> cylinder = importer::loadModel("cylinder.obj");
-	shared_ptr<IndexedMeshes> cone = importer::loadModel("cone.obj");
 	
 	DepthTexture depthTexture;
 	DepthCubemap depthCubemap;
@@ -109,7 +106,11 @@ int main(int argc, char** argv)
 
 	Cubemap skybox;
 	string files[6] = { "skybox/right.jpg","skybox/left.jpg","skybox/top.jpg","skybox/bottom.jpg","skybox/back.jpg","skybox/front.jpg" };
+
+	time = glfwGetTime();
+	cout << "Loading skybox. ";
 	skybox.loadCubemap(files);
+	cout << "Finished in " << glfwGetTime() - time << " seconds." << endl;
 
 	vec3 ball_pos;
 
@@ -216,7 +217,6 @@ int main(int argc, char** argv)
 
 		glfwSwapBuffers(window);
 	}
-	utils::clean();
 	glfwTerminate();
 	return 0;
 }
