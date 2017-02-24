@@ -8,6 +8,6 @@ uniform sampler2D Texture0;
 
 void main()
 {
-	vec2 TexCoordFixed = vec2(TexCoord.x,1 - TexCoord.y);
+	vec2 TexCoordFixed = vec2(TexCoord.x,TexCoord.y);
     color = texture(Texture0,TexCoordFixed.xy);
 } 

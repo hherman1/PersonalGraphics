@@ -56,6 +56,16 @@ namespace shaderregistry {
 			buildShaderFrom(shaderregistry::DEPTH_CUBEMAP, vector<string> {"depth_cubemap.vert","depth_cubemap.geom", "depth_cubemap.frag"});
 			break;
 		}
+		case shaderregistry::DEFERRED_GEOM:
+		{
+			buildShaderFrom(shaderregistry::DEFERRED_GEOM, vector<string> {"deferred_geom.vert", "deferred_geom.frag"});
+			break;
+		}
+		case shaderregistry::DEFERRED_LIGHT:
+		{
+			buildShaderFrom(shaderregistry::DEFERRED_LIGHT, vector<string> {"deferred_light.vert", "deferred_light.frag"});
+			break;
+		}
 		case shaderregistry::UTIL_TEXTURE2D:
 		{
 			buildShaderFrom(shaderregistry::UTIL_TEXTURE2D, vector<string> {"textureUtil.vert", "textureUtil.frag"});

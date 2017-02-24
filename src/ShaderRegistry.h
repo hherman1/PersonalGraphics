@@ -9,6 +9,8 @@ namespace shaderregistry {
 		UNLIT,
 		DEPTH,
 		DEPTH_CUBEMAP,
+		DEFERRED_GEOM,
+		DEFERRED_LIGHT,
 		UTIL_TEXTURE2D,
 		UTIL_CUBEMAP,
 		COUNT

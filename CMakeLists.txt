@@ -18,12 +18,13 @@ endif()
 set (SHADERS_BASIC 	resources/basic.vert resources/basic.frag)
 set (SHADERS_DEPTH_CUBEMAP 	resources/depth_cubemap.vert resources/depth_cubemap.frag resources/depth_cubemap.geom)
 set (SHADERS_DEPTH 	resources/depth.vert resources/depth.frag)
+set (SHADERS_DEFERRED resources/deferred_geom.vert resources/deferred_geom.frag)
 set (SHADERS_UTILS 	resources/textureUtil.frag resources/textureUtil.vert
 					resources/cubemapUtil.frag resources/cubemapUtil.vert )
 set (SHADERS_OTHER
 		resources/unlit.vert
 		resources/unlit.frag)
-set (SHADERS ${SHADERS_BASIC} ${SHADERS_DEPTH} ${SHADERS_DEPTH_CUBEMAP} ${SHADERS_UTILS} ${SHADERS_OTHER})
+set (SHADERS ${SHADERS_BASIC} ${SHADERS_DEPTH} ${SHADERS_DEPTH_CUBEMAP} ${SHADERS_UTILS} ${SHADERS_OTHER} ${SHADERS_DEFERRED})
 
 file (GLOB IMAGES resources/*.jpg resources/*.png)
 file (GLOB MODELS resources/*.obj)
@@ -43,6 +44,7 @@ set (ENGINE_SOURCE
 		src/DepthCubemap.cpp
 		src/Texture2D.cpp
 		src/Cubemap.cpp
+		src/DeferredGeom.cpp
 )
 set (ENGINE_HEADERS
 		src/Graphics.h
@@ -59,6 +61,8 @@ set (ENGINE_HEADERS
 		src/DepthCubemap.h
 		src/Texture2D.h
 		src/Cubemap.h
+		src/DeferredGeom.h
+		src/Engine.h
 )
 set (PINGPONG_SOURCE
 		src/main.cpp
@@ -96,6 +100,7 @@ source_group("Shaders\\basic" FILES ${SHADERS_BASIC})
 source_group("Shaders\\depth" FILES ${SHADERS_DEPTH})
 source_group("Shaders\\depth_cubemap" FILES ${SHADERS_DEPTH_CUBEMAP})
 source_group("Shaders\\utils" FILES ${SHADERS_UTILS})
+source_group("Shaders\\deferred" FILES ${SHADERS_DEFERRED})
 source_group("Images" FILES ${IMAGES})
 source_group("Models" FILES ${MODELS})
 

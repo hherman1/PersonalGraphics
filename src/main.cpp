@@ -82,6 +82,8 @@ int main(int argc, char** argv)
 	shared_ptr<GLSLProgram> depthCubemapShader = shaderregistry::loadShader(shaderregistry::DEPTH_CUBEMAP);
 	shared_ptr<GLSLProgram> basicShader = shaderregistry::loadShader(shaderregistry::BASIC);
 	shared_ptr<GLSLProgram> unlitShader = shaderregistry::loadShader(shaderregistry::UNLIT);
+	shared_ptr<GLSLProgram> deferredGeomShader = shaderregistry::loadShader(shaderregistry::DEFERRED_GEOM);
+	shared_ptr<GLSLProgram> deferredLightShader = shaderregistry::loadShader(shaderregistry::DEFERRED_LIGHT);
 
 	shared_ptr<IndexedMeshes> sphere = importer::loadModel("sphere.obj");
 	shared_ptr<IndexedMeshes> cylinder = importer::loadModel("cylinder.obj");
@@ -89,6 +91,8 @@ int main(int argc, char** argv)
 	
 	DepthTexture depthTexture;
 	DepthCubemap depthCubemap;
+
+	DeferredGeom deferredGeom(w_width,w_height);
 
 	Clock clock;
 
@@ -124,6 +128,7 @@ int main(int argc, char** argv)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
 
+		// draw shadow cubemap
 		GLSLProgram &depthCubemapShader = *shaderregistry::loadShader(shaderregistry::DEPTH_CUBEMAP);
 		standard_shader::setupDepthCubemapShader(depthCubemapShader,depthCubemap,pingponggame::light());
 		//draw 
@@ -132,26 +137,29 @@ int main(int argc, char** argv)
 		depthCubemap.unbind();
 		utils::resetViewport();
 
-		//need to unbind and reset viewport after
-		standard_shader::setupDepthShader(*depthShader, depthTexture, pingponggame::light());
-
-		//pingponggame::drawGeometry(*depthShader);
-
-		//ping_pong::drawRoomWalls(depthShader);
-
-
-		//depthCubemap.unbind();
-		depthTexture.unbind();
-		utils::resetViewport();
-		//utils::displayTexture2D(depthTexture.texture());
-		//utils::displayTexture(depthCubemap.cubemap());
-
-		//Camera cubeCam(vec3(0), aim.front*vec3(1, -1, 1), (1920.f / 1080.f));
-		//utils::drawSkybox(_camera, skybox);
-
+		//draw skybox
 		utils::drawSkybox(pingponggame::camera(), skybox);
-		//utils::drawSkybox(pingponggame::camera(), depthCubemap.cubemap());
-		//glDepthMask(GL_TRUE);
+
+		// draw geometry textures
+		deferredGeomShader->use();
+		deferredGeom.bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		standard_shader::setCamera(*deferredGeomShader, pingponggame::camera());
+		standard_shader::setMaterial(*deferredGeomShader, mat);
+
+		pingponggame::drawGeometry(*deferredGeomShader);
+		deferredGeom.unbind();
+
+		// render to screen		
+		shared_ptr<IndexedMesh> square = utils::getSquare();
+		deferredLightShader->use();
+
+		standard_shader::setDeferredGeom(*deferredLightShader, deferredGeom);
+		standard_shader::setCamera(*deferredLightShader, pingponggame::camera());
+		standard_shader::setLight(*deferredLightShader, pingponggame::light());
+		standard_shader::setShadowCubemap(*basicShader, depthCubemap.cubemap());
+
+		standard_shader::drawIndexedMesh(*square);
 
 		basicShader->use();
 

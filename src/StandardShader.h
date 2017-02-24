@@ -8,6 +8,7 @@
 #include "Spotlight.h"
 #include "DepthTexture.h"
 #include "DepthCubemap.h"
+#include "DeferredGeom.h"
 
 #include <vector>
 
@@ -45,5 +46,7 @@ namespace standard_shader {
 	void setupDepthShader(basicgraphics::GLSLProgram & shader, DepthTexture & dt, Spotlight l);
 	// uses _light.farPlane, and others. calls use() on shader
 	void setupDepthCubemapShader(basicgraphics::GLSLProgram & shader, DepthCubemap & dcm, Light l);
+	// uses TEXTURE2,3,4 for its content
+	void setDeferredGeom(basicgraphics::GLSLProgram & shader, DeferredGeom & dg);
 };
 

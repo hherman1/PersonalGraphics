@@ -30,7 +30,7 @@ namespace standard_shader {
 	void setMaterial(GLSLProgram& shader, Material mat) {
 		shader.setUniform("material.ambient", mat.ambient);
 		shader.setUniform("material.diffuse", mat.diffuse);
-		shader.setUniform("material.specular", mat.specular);
+		shader.setUniform("material.specular", length(mat.specular));
 		shader.setUniform("material.shininess", mat.shininess);
 	}
 	void setLight(GLSLProgram& shader, Light light) {
@@ -138,4 +138,22 @@ namespace standard_shader {
 
 		//dcm.setViewport();
 	}
+}
+
+// deferred light
+namespace standard_shader {
+	void setDeferredGeom(basicgraphics::GLSLProgram & shader, DeferredGeom & dg) {
+		glActiveTexture(GL_TEXTURE2);
+		dg.position().bind();
+		shader.setUniform("deferred.WorldPos", 2);
+
+		glActiveTexture(GL_TEXTURE3);
+		dg.normal().bind();
+		shader.setUniform("deferred.Normal", 3);
+
+		glActiveTexture(GL_TEXTURE4);
+		dg.material().bind();
+		shader.setUniform("deferred.Materials", 4);
+	}
+
 }

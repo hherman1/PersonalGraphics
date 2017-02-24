@@ -12,6 +12,8 @@
 
 #include "Framebuffer.h"
 #include "DepthTexture.h"
+#include "DepthCubemap.h"
+#include "DeferredGeom.h"
 
 #include "Camera.h"
 #include "Light.h"
