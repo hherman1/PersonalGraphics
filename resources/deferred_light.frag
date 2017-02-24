@@ -103,8 +103,11 @@ void main()
 	mat.diffuse = texture(deferred.Materials,TexCoord).rgb;
 	mat.specular = texture(deferred.Materials,TexCoord).a;
 
-	float shadow = calcShadows(WorldPos);
+	if(Normal == vec3(0,0,0)) {
+		discard;
+	}
 
+	float shadow = calcShadows(WorldPos);
 	color = shadow * vec4(calcLight(WorldPos,Normal,mat),1);
 	//color = shadow * vec4(calcLight(),1) * texture(_texture,TexCoord);
 } 

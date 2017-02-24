@@ -124,7 +124,7 @@ int main(int argc, char** argv)
 
 		//gorilla.bind();
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.f,0.f,0.f,0.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
 
@@ -161,25 +161,34 @@ int main(int argc, char** argv)
 
 		standard_shader::drawIndexedMesh(*square);
 
-		basicShader->use();
+		
+		// copy depth values to re-enable forward rendering
+		deferredGeom.bind();
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // Write to default framebuffer
+		glBlitFramebuffer(
+			0, 0, w_width, w_height, 0, 0, w_width, w_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST
+		);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//basicShader->use();
 
 
-		/*basicShader.setUniform("camera_view", _light.view());
-		basicShader.setUniform("camera_projection", _light.proj());*/
-		standard_shader::setCamera(*basicShader, pingponggame::camera());
-		standard_shader::setLight(*basicShader, pingponggame::light());
-		standard_shader::setMaterial(*basicShader, mat);
-		standard_shader::setSpotightMatrices(*basicShader, pingponggame::light());
-		standard_shader::setShadowMap(*basicShader, depthTexture.texture());
-		standard_shader::setShadowCubemap(*basicShader, depthCubemap.cubemap());
-		standard_shader::setTexture2D(*basicShader, white_texture);
-		//utils::displayTexture(white_texture);
+		///*basicShader.setUniform("camera_view", _light.view());
+		//basicShader.setUniform("camera_projection", _light.proj());*/
+		//standard_shader::setCamera(*basicShader, pingponggame::camera());
+		//standard_shader::setLight(*basicShader, pingponggame::light());
+		//standard_shader::setMaterial(*basicShader, mat);
+		//standard_shader::setSpotightMatrices(*basicShader, pingponggame::light());
+		//standard_shader::setShadowMap(*basicShader, depthTexture.texture());
+		//standard_shader::setShadowCubemap(*basicShader, depthCubemap.cubemap());
+		//standard_shader::setTexture2D(*basicShader, white_texture);
+		////utils::displayTexture(white_texture);
 
-		pingponggame::drawGeometry(*basicShader);
+		//pingponggame::drawGeometry(*basicShader);
 
 
-		standard_shader::setTexture2D(*basicShader, white_texture);
-		//ping_pong::drawRoomWalls(*basicShader);
+		//standard_shader::setTexture2D(*basicShader, white_texture);
+		////ping_pong::drawRoomWalls(*basicShader);
 
 
 		//utils::displayTexture(depthTexture.texture());

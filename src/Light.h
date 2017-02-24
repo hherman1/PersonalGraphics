@@ -9,7 +9,7 @@ public:
 	glm::vec3 position;
 	glm::vec3 direction = glm::vec3(0, -1.f, 0);
 
-	glm::vec3 ambient = glm::vec3(1.f);
+	glm::vec3 ambient = glm::vec3(0.2f);
 	glm::vec3 diffuse = glm::vec3(1.f);
 	glm::vec3 specular = glm::vec3(1.f);
 
