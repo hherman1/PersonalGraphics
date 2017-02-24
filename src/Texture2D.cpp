@@ -2,8 +2,7 @@
 
 using namespace std;
 
-Texture2D::Texture2D():
-	Texture()
+Texture2D::Texture2D()
 {
 	bind();
 }

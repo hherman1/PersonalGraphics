@@ -13,8 +13,15 @@
 //}
 using namespace basicgraphics;
 using namespace std;
+namespace skybox_shader {
+	void setCamera(GLSLProgram& shader, Camera camera) {
+		shader.setUniform("camera_projection", camera.proj());
+		shader.setUniform("camera_view", mat4(mat3(camera.view()))); // remove translations
+		shader.setUniform("camera_view_pos", camera.pos);
+	}
+}
 namespace standard_shader {
-	
+
 	void setCamera(GLSLProgram& shader, Camera camera) {
 		shader.setUniform("camera_projection", camera.proj());
 		shader.setUniform("camera_view", camera.view());

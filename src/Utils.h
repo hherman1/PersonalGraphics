@@ -4,9 +4,13 @@
 #include "Texture2D.h"
 #include "GLSLProgram.h"
 #include "Light.h"
+#include "ShaderRegistry.h"
+#include "Cubemap.h"
+#include "StandardShader.h"
 #include <memory>
 namespace utils {
 	void displayTexture2D(Texture2D& tex);
+	void drawSkybox(Camera cam, Cubemap & cubemap);
 	void resetViewport();
 	bool bounded(glm::vec3 vec, glm::vec3 min, glm::vec3 max);
 	bool bounded(float f, float min, float max);

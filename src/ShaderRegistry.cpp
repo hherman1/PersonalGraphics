@@ -1,4 +1,5 @@
 #include "ShaderRegistry.h"
+#include <vector>
 
 using namespace std;
 using namespace basicgraphics;
@@ -22,17 +23,47 @@ namespace shaderregistry {
 			throw std::runtime_error("Fetching uninitialized shader.");
 		}
 	}
+	// not always useful
+	void buildShaderFrom(Shader target, vector<string> files) {
+		GLSLProgram * shader = new GLSLProgram();
+		for (auto i = files.begin(); i < files.end(); i++) {
+			shader->compileShader(i->c_str());
+		}
+		shader->link();
+		_internal_shaders[target] = shared_ptr<GLSLProgram>(shader);
+	}
 	void buildShader(Shader target)
 	{
 		switch (target)
 		{
+		case shaderregistry::BASIC:
+		{
+			buildShaderFrom(shaderregistry::BASIC, vector<string> {"basic.vert","basic.frag"});
+			break;
+		}
+		case shaderregistry::UNLIT: 
+		{
+			buildShaderFrom(shaderregistry::UNLIT, vector<string> {"unlit.vert", "unlit.frag"});
+			break;
+		}
 		case shaderregistry::DEPTH:
 		{
-			GLSLProgram * depthShader = new GLSLProgram();
-			depthShader->compileShader("depth.vert");
-			depthShader->compileShader("depth.frag");
-			depthShader->link();
-			_internal_shaders[shaderregistry::DEPTH] = shared_ptr<GLSLProgram>(depthShader);
+			buildShaderFrom(shaderregistry::DEPTH, vector<string> {"depth.vert", "depth.frag"});
+			break;
+		}
+		case shaderregistry::DEPTH_CUBEMAP:
+		{
+			buildShaderFrom(shaderregistry::DEPTH_CUBEMAP, vector<string> {"depth_cubemap.vert","depth_cubemap.geom", "depth_cubemap.frag"});
+			break;
+		}
+		case shaderregistry::UTIL_TEXTURE2D:
+		{
+			buildShaderFrom(shaderregistry::UTIL_TEXTURE2D, vector<string> {"textureUtil.vert", "textureUtil.frag"});
+			break;
+		}
+		case shaderregistry::UTIL_CUBEMAP:
+		{
+			buildShaderFrom(shaderregistry::UTIL_CUBEMAP, vector<string> {"cubemapUtil.vert", "cubemapUtil.frag"});
 			break;
 		}
 		case shaderregistry::COUNT:
@@ -44,7 +75,7 @@ namespace shaderregistry {
 	void buildAllShaders()
 	{
 		for (int i = 0; i < Shader::COUNT; i++) {
-			buildShader(shaderregistry::DEPTH + i);
+			buildShader(static_cast<Shader> (shaderregistry::BASIC + i));
 		}
 	}
 }

@@ -47,24 +47,11 @@ namespace utils {
 	}
 	//Utils and state needed to display a texture on the square mesh center screen. Has a custom shader.
 	// This namespace is internal only, however there is a function right after it which utilizes its machinery.
-	namespace display_texture2D {
-		GLSLProgram tex2DShader;
-		bool tex2DShader_loaded = false;
-		void loadShader() {
-			tex2DShader_loaded = true;
-			tex2DShader.compileShader("textureUtil.vert");
-			tex2DShader.compileShader("textureUtil.frag");
-			tex2DShader.link();
-		}
-	}
 	// *DEBUGGING UTIL*
 	// Compiles shader on first call
 	// May also load geometry (of square) on call
 	void displayTexture2D(Texture2D& tex) {
-		using namespace display_texture2D;
-		if (!tex2DShader_loaded) {
-			loadShader();
-		}
+		GLSLProgram & tex2DShader = *shaderregistry::loadShader(shaderregistry::UTIL_TEXTURE2D);
 		shared_ptr<Mesh> square = getSquare();
 
 		tex2DShader.use();
@@ -78,7 +65,20 @@ namespace utils {
 		square->unbind();
 		
 	}
+	void drawSkybox(Camera cam, Cubemap & cubemap) {
+		glDepthMask(GL_FALSE); // draw in background only 
+		GLSLProgram & cubemapShader = *shaderregistry::loadShader(shaderregistry::UTIL_CUBEMAP);
+		cubemapShader.use();
+		auto cube = getCube();
 
+		glActiveTexture(GL_TEXTURE0);
+		cubemap.bind();
+		cubemapShader.setUniform("cubemap", cubemap.id());
+
+		skybox_shader::setCamera(cubemapShader,cam);
+		standard_shader::drawArrayMesh(*cube);
+		glDepthMask(GL_TRUE);
+	}
 	
 	shared_ptr<Mesh> _indexed_cube = NULL;
 	void loadIndexedCube() {

@@ -14,18 +14,7 @@
 #include <fstream>
 #include <vector>
 
-#include "GLSLProgram.h"
-#include "StandardShader.h"
-#include "Mesh.h"
-#include <SOIL.h>
-#include "Texture.h"
-#include "Utils.h"
-#include "Clock.h"
-#include "Framebuffer.h"
-#include "DepthTexture.h"
-#include "Spotlight.h"
-#include "Camera.h"
-#include "Importer.h"
+#include "Engine.h"
 
 //Ping pong assignment
 #include "Paddle.h"
@@ -139,26 +128,14 @@ int main(int argc, char** argv)
 	
 	GLFWwindow* window = init();
 
-	GLSLProgram unlitShader;
-	unlitShader.compileShader("unlit.vert");
-	unlitShader.compileShader("unlit.frag");
-	unlitShader.link();
+	
 
-	GLSLProgram shader;
-	shader.compileShader("basic.vert");
-	shader.compileShader("basic.frag");
-	shader.link();
-
-	GLSLProgram depthShader;
-	depthShader.compileShader("depth.vert");
-	depthShader.compileShader("depth.frag");
-	depthShader.link();
-
-	GLSLProgram depthCubemapShader;
-	depthCubemapShader.compileShader("depth_cubemap.vert");
-	depthCubemapShader.compileShader("depth_cubemap.geom");
-	depthCubemapShader.compileShader("depth_cubemap.frag");
-	depthCubemapShader.link();
+	//Keep these as shared_ptrs so they arent accidentally deallocated.
+	shaderregistry::buildAllShaders();
+	shared_ptr<GLSLProgram> depthShader = shaderregistry::loadShader(shaderregistry::DEPTH);
+	shared_ptr<GLSLProgram> depthCubemapShader = shaderregistry::loadShader(shaderregistry::DEPTH_CUBEMAP);
+	shared_ptr<GLSLProgram> basicShader = shaderregistry::loadShader(shaderregistry::BASIC);
+	shared_ptr<GLSLProgram> unlitShader = shaderregistry::loadShader(shaderregistry::UNLIT);
 
 	
 	/*Texture gorilla;
@@ -180,18 +157,6 @@ int main(int argc, char** argv)
 
 	float rotation = 0;
 
-	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};	
 	Spotlight light(vec3(0.5, 1+TABLE_TOP, 0.5), vec3(0, 0, 0));
 	light.ambient = vec3(0.2f);
 	light.diffuse = vec3(1.f); // Let's darken the light a bit to fit the scene
@@ -210,6 +175,9 @@ int main(int argc, char** argv)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	wood_texture.unbind();
 
+	Cubemap skybox;
+	string files[6] = { "skybox/right.jpg","skybox/left.jpg","skybox/top.jpg","skybox/bottom.jpg","skybox/back.jpg","skybox/front.jpg" };
+	skybox.loadCubemap(files);
 
 	vec3 ball_pos;
 	
@@ -231,12 +199,6 @@ int main(int argc, char** argv)
 		//camera.pos = 3.f * aim.front;
 		//camera.pos.y += TABLE_TOP + 1;
 
-
-		shader.use();
-
-		standard_shader::setCamera(shader, camera);
-		standard_shader::setLight(shader, light);
-		standard_shader::setMaterial(shader, mat);
 
 		//gorilla.bind();
 
@@ -260,6 +222,8 @@ int main(int argc, char** argv)
 		
 		vec3 oldPos = paddle.pos;
 		paddle.move(vec2(mouseScreenDiff.x,-mouseScreenDiff.y));
+		vec3 cameraTarget = 0.1f*(paddle.pos + ball.pos) + 0.9f*vec3(0, TABLE_TOP, 0);
+		camera.lookAt += (cameraTarget - camera.lookAt)*seconds; //0.1f*(camera.lookAt - ());
 		mouseScreenDiff = vec2(0);
 		//paddle.pos = paddle.pos + vec3(0.1*seconds);
 		ball.update(seconds);
@@ -354,7 +318,7 @@ int main(int argc, char** argv)
 		}
 
 		//need to unbind and reset viewport after
-		standard_shader::setupDepthShader(depthShader, depthTexture, light);
+		standard_shader::setupDepthShader(*depthShader, depthTexture, light);
 		//standard_shader::setupDepthCubemapShader(depthCubemapShader,depthCubemap,light);
 		//draw 
 		//paddle.draw(depthCubemapShader);
@@ -362,10 +326,10 @@ int main(int argc, char** argv)
 		//table.draw(depthCubemapShader);
 		//ping_pong::drawFloor(depthCubemapShader);
 
-		paddle.draw(depthShader);
-		ball.draw(depthShader);
-		table.draw(depthShader);
-		ping_pong::drawFloor(depthShader);
+		paddle.draw(*depthShader);
+		ball.draw(*depthShader);
+		table.draw(*depthShader);
+		ping_pong::drawFloor(*depthShader);
 
 		//ping_pong::drawRoomWalls(depthShader);
 
@@ -373,33 +337,44 @@ int main(int argc, char** argv)
 		//depthCubemap.unbind();
 		depthTexture.unbind();
 		utils::resetViewport();
-		utils::displayTexture2D(depthTexture.texture());
+		//utils::displayTexture2D(depthTexture.texture());
 		//utils::displayTexture(depthCubemap.cubemap());
 
-		shader.use();
-		/*shader.setUniform("camera_view", light.view());
-		shader.setUniform("camera_projection", light.proj());*/
-		standard_shader::setSpotightMatrices(shader, light);
-		standard_shader::setShadowMap(shader, depthTexture.texture());
-		standard_shader::setTexture2D(shader, white_texture);
+		//Camera cubeCam(vec3(0), aim.front*vec3(1, -1, 1), (1920.f / 1080.f));
+		utils::drawSkybox(camera, skybox);
+		//glDepthMask(GL_TRUE);
+
+		basicShader->use();
+
+
+		/*basicShader.setUniform("camera_view", light.view());
+		basicShader.setUniform("camera_projection", light.proj());*/
+		standard_shader::setCamera(*basicShader, camera);
+		standard_shader::setLight(*basicShader, light);
+		standard_shader::setMaterial(*basicShader, mat);
+		standard_shader::setSpotightMatrices(*basicShader, light);
+		standard_shader::setShadowMap(*basicShader, depthTexture.texture());
+		standard_shader::setTexture2D(*basicShader, white_texture);
 		//utils::displayTexture(white_texture);
 
-		paddle.draw(shader);
-		ball.draw(shader);
-		table.draw(shader);
+		paddle.draw(*basicShader);
+		ball.draw(*basicShader);
+		table.draw(*basicShader);
 
-		standard_shader::setTexture2D(shader, wood_texture);
-		ping_pong::drawFloor(shader);
+		standard_shader::setTexture2D(*basicShader, wood_texture);
+		ping_pong::drawFloor(*basicShader);
 
-		standard_shader::setTexture2D(shader, white_texture);
-		ping_pong::drawRoomWalls(shader);
+		standard_shader::setTexture2D(*basicShader, white_texture);
+		//ping_pong::drawRoomWalls(*basicShader);
+
 
 		//utils::displayTexture(depthTexture.texture());
 		//Light
-		unlitShader.use();
-		unlitShader.setUniform("projection", camera.proj());
-		unlitShader.setUniform("view", camera.view());
-		unlitShader.setUniform("object_color", vec3(1, 1, 1));
+		//Should standardize this shader at some point
+		unlitShader->use();
+		unlitShader->setUniform("projection", camera.proj());
+		unlitShader->setUniform("view", camera.view());
+		unlitShader->setUniform("object_color", vec3(1, 1, 1));
 
 		{
 			shared_ptr<ArrayMesh> cube = utils::getCube();
@@ -407,8 +382,8 @@ int main(int argc, char** argv)
 			mat4 model = mat4(1.0);
 			model = translate(model, light.position);
 			model = scale(model, vec3(1.f/16));
-			unlitShader.setUniform("model", model);
-			unlitShader.setUniform("object_color", light.specular);
+			unlitShader->setUniform("model", model);
+			unlitShader->setUniform("object_color", light.specular);
 			standard_shader::drawArrayMesh(*cube);
 		}
 

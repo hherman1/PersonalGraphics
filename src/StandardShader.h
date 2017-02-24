@@ -12,7 +12,9 @@
 #include <vector>
 
 
-
+namespace skybox_shader {
+	void setCamera(basicgraphics::GLSLProgram & shader, Camera camera);
+}
 namespace standard_shader {
 	struct Scene {
 		std::vector<Mesh> meshes;

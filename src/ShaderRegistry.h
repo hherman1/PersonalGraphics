@@ -5,9 +5,12 @@
 namespace shaderregistry {
 
 	enum Shader {
+		BASIC,
+		UNLIT,
 		DEPTH,
-
-
+		DEPTH_CUBEMAP,
+		UTIL_TEXTURE2D,
+		UTIL_CUBEMAP,
 		COUNT
 	};
 	//fetches shader and will compile if it is not already compiled
