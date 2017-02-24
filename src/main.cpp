@@ -158,7 +158,7 @@ int main(int argc, char** argv)
 		standard_shader::setDeferredGeom(*deferredLightShader, deferredGeom);
 		standard_shader::setCamera(*deferredLightShader, pingponggame::camera());
 		standard_shader::setLight(*deferredLightShader, pingponggame::light());
-		standard_shader::setShadowCubemap(*basicShader, depthCubemap.cubemap());
+		standard_shader::setShadowCubemap(*deferredLightShader, depthCubemap.cubemap());
 
 		standard_shader::drawIndexedMesh(*square);
 
@@ -170,6 +170,9 @@ int main(int argc, char** argv)
 			0, 0, w_width, w_height, 0, 0, w_width, w_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST
 		);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+		//utils::displayTexture2D(deferredGeom.normal());
 
 		//basicShader->use();
 

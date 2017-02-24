@@ -18,7 +18,8 @@ endif()
 set (SHADERS_BASIC 	resources/basic.vert resources/basic.frag)
 set (SHADERS_DEPTH_CUBEMAP 	resources/depth_cubemap.vert resources/depth_cubemap.frag resources/depth_cubemap.geom)
 set (SHADERS_DEPTH 	resources/depth.vert resources/depth.frag)
-set (SHADERS_DEFERRED resources/deferred_geom.vert resources/deferred_geom.frag)
+set (SHADERS_DEFERRED resources/deferred_geom.vert resources/deferred_geom.frag
+	resources/deferred_light.vert resources/deferred_light.frag)
 set (SHADERS_UTILS 	resources/textureUtil.frag resources/textureUtil.vert
 					resources/cubemapUtil.frag resources/cubemapUtil.vert )
 set (SHADERS_OTHER
@@ -26,7 +27,7 @@ set (SHADERS_OTHER
 		resources/unlit.frag)
 set (SHADERS ${SHADERS_BASIC} ${SHADERS_DEPTH} ${SHADERS_DEPTH_CUBEMAP} ${SHADERS_UTILS} ${SHADERS_OTHER} ${SHADERS_DEFERRED})
 
-file (GLOB IMAGES resources/*.jpg resources/*.png)
+file (GLOB IMAGES resources/*.jpg resources/*.png resources/*.tiff)
 file (GLOB MODELS resources/*.obj)
 
 set (ENGINE_SOURCE

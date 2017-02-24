@@ -82,19 +82,24 @@ namespace standard_shader {
 	}
 
 	void setShadowMap(basicgraphics::GLSLProgram & shader, Texture2D & shadowMap) {
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE3);
 		shadowMap.bind();
-		shader.setUniform("shadowMap", 0);
+		shader.setUniform("shadowMap", 3);
 	}
 	void setShadowCubemap(basicgraphics::GLSLProgram & shader, Cubemap & shadowCube) {
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE3);
 		shadowCube.bind();
-		shader.setUniform("shadowMap", 0);
+		shader.setUniform("shadowCubemap", 3);
 	}
 	void setTexture2D(basicgraphics::GLSLProgram & shader, Texture2D & texture) {
-		glActiveTexture(GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE4);
 		texture.bind();
-		shader.setUniform("_texture", 1);
+		shader.setUniform("_texture", 4);
+	}
+	void setTexture2DNormal(basicgraphics::GLSLProgram & shader, Texture2D & texture) {
+		glActiveTexture(GL_TEXTURE5);
+		texture.bind();
+		shader.setUniform("_texture_normal", 5);
 	}
 
 }
@@ -143,17 +148,17 @@ namespace standard_shader {
 // deferred light
 namespace standard_shader {
 	void setDeferredGeom(basicgraphics::GLSLProgram & shader, DeferredGeom & dg) {
-		glActiveTexture(GL_TEXTURE2);
+		glActiveTexture(GL_TEXTURE0);
 		dg.position().bind();
-		shader.setUniform("deferred.WorldPos", 2);
+		shader.setUniform("deferred.WorldPos", 0);
 
-		glActiveTexture(GL_TEXTURE3);
+		glActiveTexture(GL_TEXTURE1);
 		dg.normal().bind();
-		shader.setUniform("deferred.Normal", 3);
+		shader.setUniform("deferred.Normal", 1);
 
-		glActiveTexture(GL_TEXTURE4);
+		glActiveTexture(GL_TEXTURE2);
 		dg.material().bind();
-		shader.setUniform("deferred.Materials", 4);
+		shader.setUniform("deferred.Materials", 2);
 	}
 
 }

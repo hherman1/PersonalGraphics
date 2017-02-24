@@ -120,8 +120,11 @@ void main()
 	if(Normal == vec3(0,0,0)) {
 		discard;
 	}
-
+	vec3 lightDir = (WorldPos - light.position);
+	//color = vec4(texture(shadowCubemap,lightDir).r,1,1,1);
+	//color = vec4(WorldPos,1);
 	float shadow = 1-calcShadows(WorldPos);
+	//color = vec4(calcLight(WorldPos,Normal,mat),1);
 	color = shadow * vec4(calcLight(WorldPos,Normal,mat),1);
 	//color = shadow * vec4(calcLight(),1) * texture(_texture,TexCoord);
 } 
