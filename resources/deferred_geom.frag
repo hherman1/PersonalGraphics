@@ -15,13 +15,15 @@ struct Material {
 uniform Material material;
 uniform sampler2D _texture;
 uniform sampler2D _texture_normal;
+uniform sampler2D _texture_displacement; 
 
 void main()
 {    
     // Store the fragment position vector in the first gbuffer texture
-    gPosition = WorldPos;
+	float displacement = length(texture(_texture_displacement,TexCoords));
+    gPosition = WorldPos;// + displacement * NormalModel * NormalRaw;
     // Also store the per-fragment normals into the gbuffer
-	vec3 texNormal = texture(_texture_normal,TexCoords).rgb;
+	vec3 texNormal = normalize(2*texture(_texture_normal,TexCoords).rgb-1.0);
     gNormal = NormalModel * normalize(NormalRaw + texNormal);
     // And the diffuse per-fragment color
     gAlbedoSpec.rgb = material.diffuse * texture(_texture,TexCoords).rgb;

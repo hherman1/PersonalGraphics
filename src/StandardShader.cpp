@@ -101,7 +101,11 @@ namespace standard_shader {
 		texture.bind();
 		shader.setUniform("_texture_normal", 5);
 	}
-
+	void setTexture2DDisplacement(basicgraphics::GLSLProgram & shader, Texture2D & texture) {
+		glActiveTexture(GL_TEXTURE6);
+		texture.bind();
+		shader.setUniform("_texture_displacement", 6);
+	}
 }
 
 void standard_shader::setSpotightMatrices(GLSLProgram & shader, Spotlight l)

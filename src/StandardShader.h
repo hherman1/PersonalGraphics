@@ -41,6 +41,7 @@ namespace standard_shader {
 	void setShadowCubemap(basicgraphics::GLSLProgram & shader, Cubemap & shadowCube);
 	void setTexture2D(basicgraphics::GLSLProgram & shader, Texture2D & texture);
 	void setTexture2DNormal(basicgraphics::GLSLProgram & shader, Texture2D & texture);
+	void setTexture2DDisplacement(basicgraphics::GLSLProgram & shader, Texture2D & texture);
 	void drawArrayMesh(ArrayMesh& mesh);
 	void setSpotightMatrices(basicgraphics::GLSLProgram & shader, Spotlight l);
 	//need to unbind and reset viewport after

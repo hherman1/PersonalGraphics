@@ -183,6 +183,7 @@ namespace pingponggame {
 
 	shared_ptr<Texture2D> cobble;
 	shared_ptr<Texture2D> cobble_normal;
+	shared_ptr<Texture2D> cobble_displacement;
 
 	shared_ptr<Texture2D> wood_texture;
 	shared_ptr<Texture2D> white_texture;
@@ -282,6 +283,13 @@ namespace pingponggame {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		cobble_normal->unbind();
+
+		cobble_displacement.reset(new Texture2D());
+		cobble_displacement->bind();
+		cobble_displacement->loadImage("cobble_displacement.png");
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		cobble_displacement->unbind();
 
 		white_texture.reset(new Texture2D());
 		white_texture->bind();
@@ -435,6 +443,7 @@ namespace pingponggame {
 
 		standard_shader::setTexture2D(shader, *cobble);
 		standard_shader::setTexture2DNormal(shader, *cobble_normal);
+		standard_shader::setTexture2DDisplacement(shader, *cobble_displacement);
 		ping_pong::drawFloor(shader);
 	}
 
