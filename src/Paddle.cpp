@@ -1,4 +1,5 @@
 #include "Paddle.h"
+#define SENSITIVITY 2.f
 
 using namespace std;
 using namespace basicgraphics;
@@ -11,7 +12,7 @@ Paddle::Paddle() :
 }
 void Paddle::move(vec2 diff) {
 	prev_pos = pos;
-	pos += vec3(diff.x,0,diff.y);
+	pos += SENSITIVITY * vec3(diff.x,0,diff.y);
 	pos = glm::clamp(pos, vec3(TABLE_LEFT - NET_OVERHANG,0, 0), vec3(TABLE_RIGHT + NET_OVERHANG,0, TABLE_FRONT));
 }
 float Paddle::getAngle() {

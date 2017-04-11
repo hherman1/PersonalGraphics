@@ -39,6 +39,7 @@ GLFWwindow* init() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
     GLFWwindow* window = glfwCreateWindow(w_width, w_height, "LearnOpenGL", nullptr, nullptr);
 	if (window == nullptr)
 	{
@@ -171,6 +172,7 @@ int main(int argc, char** argv)
 		);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		//utils::displayTexture2D(deferredGeom.position());
 
 		//utils::displayTexture2D(deferredGeom.normal());
 

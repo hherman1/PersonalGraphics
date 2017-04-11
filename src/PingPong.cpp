@@ -226,7 +226,7 @@ namespace pingponggame {
 		mouseScreenDiff.x = xoffset / w_width;
 		mouseScreenDiff.y = yoffset / w_height;
 
-		GLfloat sensitivity = 0.05f;
+		GLfloat sensitivity = 0.3f;
 		xoffset *= sensitivity;
 		yoffset *= sensitivity;
 		aim.yaw += xoffset;
@@ -437,6 +437,9 @@ namespace pingponggame {
 	void drawGeometry(basicgraphics::GLSLProgram & shader)
 	{
 		standard_shader::setTexture2D(shader, *white_texture);
+		standard_shader::setTexture2DNormal(shader, *white_texture);
+		standard_shader::setTexture2DDisplacement(shader, *white_texture);
+
 		_paddle->draw(shader);
 		_ball->draw(shader);
 		_table->draw(shader);

@@ -1,4 +1,5 @@
 #include "ShaderRegistry.h"
+#include "ShaderRegistry.h"
 #include <vector>
 
 using namespace std;
@@ -23,14 +24,18 @@ namespace shaderregistry {
 			throw std::runtime_error("Fetching uninitialized shader.");
 		}
 	}
-	// not always useful
-	void buildShaderFrom(Shader target, vector<string> files) {
+	std::shared_ptr<basicgraphics::GLSLProgram> makeShader(std::vector<string> files)
+	{
 		GLSLProgram * shader = new GLSLProgram();
 		for (auto i = files.begin(); i < files.end(); i++) {
 			shader->compileShader(i->c_str());
 		}
 		shader->link();
-		_internal_shaders[target] = shared_ptr<GLSLProgram>(shader);
+		return std::shared_ptr<GLSLProgram>(shader);
+	}
+	// not always useful
+	void buildShaderFrom(Shader target, vector<string> files) {
+		_internal_shaders[target] = makeShader(files);
 	}
 	void buildShader(Shader target)
 	{

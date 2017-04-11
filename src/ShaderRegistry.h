@@ -1,6 +1,7 @@
 #pragma once
 #include "GLSLProgram.h"
 #include <memory>
+#include <vector>
 
 namespace shaderregistry {
 
@@ -19,6 +20,7 @@ namespace shaderregistry {
 	std::shared_ptr<basicgraphics::GLSLProgram> loadShader(Shader target);
 	//load shader but will not compile the shader
 	std::shared_ptr<basicgraphics::GLSLProgram> fetchShader(Shader target);
+	std::shared_ptr<basicgraphics::GLSLProgram> makeShader(std::vector<string> files);
 	void buildShader(Shader target);
 	void buildAllShaders();
 }
