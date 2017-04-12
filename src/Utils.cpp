@@ -241,5 +241,23 @@ namespace utils {
 		shader.setUniform("light.cutOff", light.cutOff);
 
 	}
+	
+
+	Attributeless::Attributeless()
+	{
+		glGenVertexArrays(1, &_VAO);
+	}
+
+	Attributeless::~Attributeless()
+	{
+		glDeleteVertexArrays(1, &_VAO);
+	}
+
+	void Attributeless::draw(GLenum primitive, int numVertices)
+	{
+		glBindVertexArray(_VAO);
+		glDrawArraysInstanced(primitive, 0, 1, numVertices);
+
+	}
 
 }

@@ -24,7 +24,9 @@ set (SHADERS_UTILS 	resources/textureUtil.frag resources/textureUtil.vert
 					resources/cubemapUtil.frag resources/cubemapUtil.vert )
 set (SHADERS_OTHER
 		resources/unlit.vert
-		resources/unlit.frag)
+		resources/unlit.frag
+		resources/attributeless.vert
+		resources/attributeless.frag)
 set (SHADERS ${SHADERS_BASIC} ${SHADERS_DEPTH} ${SHADERS_DEPTH_CUBEMAP} ${SHADERS_UTILS} ${SHADERS_OTHER} ${SHADERS_DEFERRED})
 
 file (GLOB IMAGES resources/*.jpg resources/*.png resources/*.tiff)
@@ -65,14 +67,14 @@ set (ENGINE_HEADERS
 		src/DeferredGeom.h
 		src/Engine.h
 )
-set (PINGPONG_SOURCE
+set (KINECT_SOURCE
 		src/main.cpp
 		src/Paddle.cpp
 		src/Ball.cpp
 		src/Table.cpp
 		src/PingPong.cpp
 )
-set (PINGPONG_HEADERS
+set (KINECT_HEADERS
 		src/Paddle.h
 		src/Ball.h
 		src/Table.h
@@ -88,9 +90,9 @@ set (OTHER_HEADERS
 		src/StandardShader.h
 		src/ShaderRegistry.h
 )
-set (SOURCEFILES ${ENGINE_SOURCE} ${PINGPONG_SOURCE} ${OTHER_SOURCE})
+set (SOURCEFILES ${ENGINE_SOURCE} ${KINECT_SOURCE} ${OTHER_SOURCE})
 
-set (HEADERFILES  ${ENGINE_HEADERS} ${PINGPONG_HEADERS} ${OTHER_HEADERS})
+set (HEADERFILES  ${ENGINE_HEADERS} ${KINECT_HEADERS} ${OTHER_HEADERS})
 
 source_group("Source Files\\Utils" FILES ${OTHER_SOURCE})
 source_group("Header Files\\Utils" FILES ${OTHER_HEADERS})
@@ -359,13 +361,13 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 #attempting to separate the pieces.
 add_library(PersonalGraphics ${ENGINE_SOURCE} ${ENGINE_HEADERS} ${OTHER_HEADERS} ${OTHER_SOURCE})
 
-add_executable(PingPong ${PINGPONG_SOURCE} ${PINGPONG_HEADERS})
-target_link_libraries(PingPong PersonalGraphics ${GLFW_LIBRARY} ${ZLIB_LIBRARIES} ${ASSIMP_LIBRARY} ${SOIL_LIBRARY} ${OPENGL_LIBRARIES} ${LIBS_ALL})
+add_executable(MacKinection ${KINECT_SOURCE} ${KINECT_HEADERS})
+target_link_libraries(MacKinection PersonalGraphics ${GLFW_LIBRARY} ${ZLIB_LIBRARIES} ${ASSIMP_LIBRARY} ${SOIL_LIBRARY} ${OPENGL_LIBRARIES} ${LIBS_ALL})
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT PingPong)
-set_target_properties(PingPong PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${OUTPUT_DIRECTORY})
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT MacKinection)
+set_target_properties(MacKinection PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${OUTPUT_DIRECTORY})
 
-add_dependencies(PingPong glfw assimp SOIL Resources PersonalGraphics)
+add_dependencies(MacKinection glfw assimp SOIL Resources PersonalGraphics)
 
 add_custom_target(Resources ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/resources ${OUTPUT_DIRECTORY}

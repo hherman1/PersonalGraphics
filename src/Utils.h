@@ -19,4 +19,17 @@ namespace utils {
 	mat3 normal_model(mat4 model);
 	void setMaterial(basicgraphics::GLSLProgram & shader, Material mat);
 	void setLight(basicgraphics::GLSLProgram & shader, Light light);
+
+	class Attributeless {
+	public:
+		Attributeless();
+		~Attributeless();
+		Attributeless(Attributeless&& move) = delete;
+		Attributeless(const Attributeless& that) = delete;
+
+		//bind a VAO. 
+		void draw(GLenum primitive,int numVertices);
+	private:
+		GLuint _VAO;
+	};
 }

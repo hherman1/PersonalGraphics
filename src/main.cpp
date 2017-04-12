@@ -105,16 +105,21 @@ int main(int argc, char** argv)
 	Texture2D wood_texture;
 
 
-	Cubemap skybox;
-	string files[6] = { "skybox/right.jpg","skybox/left.jpg","skybox/top.jpg","skybox/bottom.jpg","skybox/back.jpg","skybox/front.jpg" };
+	//Cubemap skybox;
+	//string files[6] = { "skybox/right.jpg","skybox/left.jpg","skybox/top.jpg","skybox/bottom.jpg","skybox/back.jpg","skybox/front.jpg" };
 
-	time = glfwGetTime();
-	cout << "Loading skybox. ";
-	skybox.loadCubemap(files);
-	cout << "Finished in " << glfwGetTime() - time << " seconds." << endl;
+	//time = glfwGetTime();
+	//cout << "Loading skybox. ";
+	//skybox.loadCubemap(files);
+	//cout << "Finished in " << glfwGetTime() - time << " seconds." << endl;
 
 	vec3 ball_pos;
 
+	//test bed
+
+
+	std::shared_ptr<basicgraphics::GLSLProgram> attributelessShader = shaderregistry::makeShader({ "attributeless.vert","attributeless.frag" });
+	utils::Attributeless attributeless;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -124,25 +129,30 @@ int main(int argc, char** argv)
 		
 		pingponggame::update(seconds);
 
+
 		//gorilla.bind();
 
 		glClearColor(0.f,0.f,0.f,0.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
 
-		// draw shadow cubemap
-		GLSLProgram &depthCubemapShader = *shaderregistry::loadShader(shaderregistry::DEPTH_CUBEMAP);
-		standard_shader::setupDepthCubemapShader(depthCubemapShader,depthCubemap,pingponggame::light());
-		//draw 
-		pingponggame::drawGeometry(depthCubemapShader);
 
-		depthCubemap.unbind();
-		utils::resetViewport();
 
-		//draw skybox
-		utils::drawSkybox(pingponggame::camera(), skybox);
 
-		// draw geometry textures
+
+		//// draw shadow cubemap
+		//GLSLProgram &depthCubemapShader = *shaderregistry::loadShader(shaderregistry::DEPTH_CUBEMAP);
+		//standard_shader::setupDepthCubemapShader(depthCubemapShader,depthCubemap,pingponggame::light());
+		////draw 
+		//pingponggame::drawGeometry(depthCubemapShader);
+
+		//depthCubemap.unbind();
+		//utils::resetViewport();
+
+		////draw skybox
+		//utils::drawSkybox(pingponggame::camera(), skybox);
+
+		//// draw geometry textures
 		deferredGeomShader->use();
 		deferredGeom.bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -152,69 +162,86 @@ int main(int argc, char** argv)
 		pingponggame::drawGeometry(*deferredGeomShader);
 		deferredGeom.unbind();
 
-		// render to screen		
-		shared_ptr<IndexedMesh> square = utils::getSquare();
-		deferredLightShader->use();
-
-		standard_shader::setDeferredGeom(*deferredLightShader, deferredGeom);
-		standard_shader::setCamera(*deferredLightShader, pingponggame::camera());
-		standard_shader::setLight(*deferredLightShader, pingponggame::light());
-		standard_shader::setShadowCubemap(*deferredLightShader, depthCubemap.cubemap());
-
-		standard_shader::drawIndexedMesh(*square);
-
-		
-		// copy depth values to re-enable forward rendering
-		deferredGeom.bind();
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // Write to default framebuffer
-		glBlitFramebuffer(
-			0, 0, w_width, w_height, 0, 0, w_width, w_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST
-		);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 		//utils::displayTexture2D(deferredGeom.position());
 
-		//utils::displayTexture2D(deferredGeom.normal());
+		Camera testCam(vec3(0, 2 + TABLE_TOP, 2.25), vec3(0, TABLE_TOP, 0.25), (float)w_width / (float)w_height);
 
-		//basicShader->use();
+		attributelessShader->use();
+		attributelessShader->setUniform("vertexCount", 50);
+		attributelessShader->setUniform("w_width", w_width);
+		attributelessShader->setUniform("w_height", w_height);
+		glActiveTexture(GL_TEXTURE0);
+		deferredGeom.position().bind();
+		attributelessShader->setUniform("positions",0);
+
+		attributelessShader->setUniform("transform", testCam.proj() * testCam.view());
+
+		glPointSize(1);
+		attributeless.draw(GL_POINTS,w_width*w_height);
+
+		//// render to screen		
+		//shared_ptr<IndexedMesh> square = utils::getSquare();
+		//deferredLightShader->use();
+
+		//standard_shader::setDeferredGeom(*deferredLightShader, deferredGeom);
+		//standard_shader::setCamera(*deferredLightShader, pingponggame::camera());
+		//standard_shader::setLight(*deferredLightShader, pingponggame::light());
+		//standard_shader::setShadowCubemap(*deferredLightShader, depthCubemap.cubemap());
+
+		//standard_shader::drawIndexedMesh(*square);
+
+		//
+		//// copy depth values to re-enable forward rendering
+		//deferredGeom.bind();
+		//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // Write to default framebuffer
+		//glBlitFramebuffer(
+		//	0, 0, w_width, w_height, 0, 0, w_width, w_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST
+		//);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		////utils::displayTexture2D(deferredGeom.position());
+
+		////utils::displayTexture2D(deferredGeom.normal());
+
+		////basicShader->use();
 
 
-		///*basicShader.setUniform("camera_view", _light.view());
-		//basicShader.setUniform("camera_projection", _light.proj());*/
-		//standard_shader::setCamera(*basicShader, pingponggame::camera());
-		//standard_shader::setLight(*basicShader, pingponggame::light());
-		//standard_shader::setMaterial(*basicShader, mat);
-		//standard_shader::setSpotightMatrices(*basicShader, pingponggame::light());
-		//standard_shader::setShadowMap(*basicShader, depthTexture.texture());
-		//standard_shader::setShadowCubemap(*basicShader, depthCubemap.cubemap());
-		//standard_shader::setTexture2D(*basicShader, white_texture);
-		////utils::displayTexture(white_texture);
+		/////*basicShader.setUniform("camera_view", _light.view());
+		////basicShader.setUniform("camera_projection", _light.proj());*/
+		////standard_shader::setCamera(*basicShader, pingponggame::camera());
+		////standard_shader::setLight(*basicShader, pingponggame::light());
+		////standard_shader::setMaterial(*basicShader, mat);
+		////standard_shader::setSpotightMatrices(*basicShader, pingponggame::light());
+		////standard_shader::setShadowMap(*basicShader, depthTexture.texture());
+		////standard_shader::setShadowCubemap(*basicShader, depthCubemap.cubemap());
+		////standard_shader::setTexture2D(*basicShader, white_texture);
+		//////utils::displayTexture(white_texture);
 
-		//pingponggame::drawGeometry(*basicShader);
-
-
-		//standard_shader::setTexture2D(*basicShader, white_texture);
-		////ping_pong::drawRoomWalls(*basicShader);
+		////pingponggame::drawGeometry(*basicShader);
 
 
-		//utils::displayTexture(depthTexture.texture());
-		//Light
-		//Should standardize this shader at some point
-		unlitShader->use();
-		unlitShader->setUniform("projection", pingponggame::camera().proj());
-		unlitShader->setUniform("view", pingponggame::camera().view());
-		unlitShader->setUniform("object_color", vec3(1, 1, 1));
+		////standard_shader::setTexture2D(*basicShader, white_texture);
+		//////ping_pong::drawRoomWalls(*basicShader);
 
-		{
-			shared_ptr<ArrayMesh> cube = utils::getCube();
-			cube->bind();
-			mat4 model = mat4(1.0);
-			model = translate(model, pingponggame::light().position);
-			model = scale(model, vec3(1.f/16));
-			unlitShader->setUniform("model", model);
-			unlitShader->setUniform("object_color", pingponggame::light().specular);
-			standard_shader::drawArrayMesh(*cube);
-		}
+
+		////utils::displayTexture(depthTexture.texture());
+		////Light
+		////Should standardize this shader at some point
+		//unlitShader->use();
+		//unlitShader->setUniform("projection", pingponggame::camera().proj());
+		//unlitShader->setUniform("view", pingponggame::camera().view());
+		//unlitShader->setUniform("object_color", vec3(1, 1, 1));
+
+		//{
+		//	shared_ptr<ArrayMesh> cube = utils::getCube();
+		//	cube->bind();
+		//	mat4 model = mat4(1.0);
+		//	model = translate(model, pingponggame::light().position);
+		//	model = scale(model, vec3(1.f/16));
+		//	unlitShader->setUniform("model", model);
+		//	unlitShader->setUniform("object_color", pingponggame::light().specular);
+		//	standard_shader::drawArrayMesh(*cube);
+		//}
 
 
 		//utils::displayTexture(gorilla);
