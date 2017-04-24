@@ -242,7 +242,7 @@ else()
 endif()	
 include_directories(${ASSIMP_INCLUDE_DIR})
 
-find_package(ZLIB QUIET)
+find_package(ZLIB)
 if (NOT ZLIB_FOUND)
 	if (MSVC)
 		message("Zlib not found. Setting it to zlib built with assimp")
@@ -254,7 +254,6 @@ if (NOT ZLIB_FOUND)
 include_directories(${ZLIB_INCLUDE_DIRS})
 
 endif()
-
 
 #SOIL
 set(soil_checkout_dir ${PROJECT_SOURCE_DIR}/deps/SOIL)
@@ -380,7 +379,7 @@ add_library(PersonalGraphics ${ENGINE_SOURCE} ${ENGINE_HEADERS} ${OTHER_HEADERS}
 add_dependencies(PersonalGraphics glfw assimp SOIL Resources)
 
 add_executable(MacKinection ${KINECT_SOURCE} ${KINECT_HEADERS})
-target_link_libraries(MacKinection PersonalGraphics ${GLFW_LIBRARY} ${ZLIB_LIBRARIES} ${ASSIMP_LIBRARY} ${SOIL_LIBRARY} ${OPENGL_LIBRARIES} ${LIBS_ALL})
+target_link_libraries(MacKinection PersonalGraphics ${GLFW_LIBRARY} ${ASSIMP_LIBRARY} ${ZLIB_LIBRARIES}  ${SOIL_LIBRARY} ${OPENGL_LIBRARIES} ${LIBS_ALL})
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT MacKinection)
 set_target_properties(MacKinection PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${OUTPUT_DIRECTORY})
