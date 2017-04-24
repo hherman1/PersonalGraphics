@@ -250,6 +250,9 @@ if (NOT ZLIB_FOUND)
 		set(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
 		SET(ZLIB_FOUND 1)
 	endif()
+	else()
+include_directories(${ZLIB_INCLUDE_DIRS})
+
 endif()
 
 
