@@ -1,20 +1,42 @@
 #include "Fire.h"
 
-#define SIM_DIM 20
+#define SIM_DIM 50
 #define N SIM_DIM 
+#define ARR_DIM (N+2)
 #define IX(i,j) ((i)+(N+2)*(j))
-#define SWAP(x0,x) {float *tmp=x0;x0=x;x=tmp;}
+#define SWAP(x0,x) {float *tmp=x0;x0=x;x=tmp;}
 
 
+using namespace glm;
 namespace simulator {
 	static const int size = (N + 2) * (N + 2);
-	static float u[size], v[size], u_prev[size], v_prev[size];
-	static float dens[size], dens_prev[size];
+	static float u[size], v[size], u_prev[size], v_prev[size] = { };
+	static float dens[size], dens_prev[size] = {  };
+
+	static float u_in[size], v_in[size];
+	static float dens_in[size];
+
+	static const float visc = 0.01;
+	static const float diff = 0.0005; 
 
 	static float h = 1.f / N;
 
+	static const float inMag = 10000;
+	static const float velMag = 10000;
+
+	int getSize() {
+		return size;
+	}
+	int getDim() {
+		return N+2;
+	}
+	float* getDens() {
+		return dens;
+	}
+
 
 	void set_bnd(int b, float * x);
+	void simulate(float dt);
 	void add_source(float * x, float * s, float dt);
 	void diffuse(int b, float * x, float * x0, float diff, float dt);
 	void advect(int b, float * d, float * d0, float * u, float * v, float dt);
@@ -22,14 +44,48 @@ namespace simulator {
 	void vel_step(float * u, float * v, float * u0, float * v0, float visc, float dt);
 	void project(float * u, float * v, float * p, float * div);
 
-	void simulate(float dt) {
+	void set_vect(vec2 vec, int x, int y) {
+		u_in[IX(x, y)] = vec.x;
+		v_in[IX(x, y)] = vec.y;
+	}
 
+	void inputDens(vec2 coords) {
+		int x_coord = floor(coords.x*ARR_DIM);
+		int y_coord = ARR_DIM - floor(coords.y*ARR_DIM);
+		dens_in[IX(x_coord, y_coord)] = inMag;
+	}
+	void inputVel(vec2 coords,vec2 vel) {
+		int x_coord = floor(coords.x*ARR_DIM);
+		int y_coord = ARR_DIM - floor(coords.y*ARR_DIM);
+		set_vect(velMag * vec2(1,-1) * vel, x_coord, y_coord);
+	}
+
+	void apply_inputs(float dt) {
+		std::fill(dens_prev, dens_prev + size, 0);
+		std::fill(u_prev, u_prev + size, 0);
+		std::fill(v_prev, v_prev + size, 0);
+		add_source(v_prev, v_in, dt);
+		add_source(u_prev, u_in, dt);
+		add_source(dens_prev, dens_in, dt);
+	}
+	void clear_inputs() {
+		std::fill(dens_in, dens_in + size, 0);
+		std::fill(u_in, u_in + size, 0);
+		std::fill(v_in, v_in + size, 0);
+	}
+	void simulate(float dt) {
+		apply_inputs(dt);
+		vel_step( u, v, u_prev, v_prev, visc, dt);
+		dens_step( dens, dens_prev, u, v, diff, dt);
+		clear_inputs();
+		//draw_dens( dens);
 	}
 	void add_source(float * x, float * s, float dt)
 	{
 		int i;
 		for (i = 0; i<size; i++) x[i] += dt*s[i];
-	}	void diffuse( int b, float * x, float * x0, float diff, float dt)
+	}
+	void diffuse( int b, float * x, float * x0, float diff, float dt)
 	{
 		int i, j, k;
 		float a = dt*diff*N*N;
@@ -42,7 +98,8 @@ namespace simulator {
 			}
 			set_bnd(b, x);
 		}
-	}	void advect( int b, float * d, float * d0, float * u, float * v, float dt)
+	}
+	void advect( int b, float * d, float * d0, float * u, float * v, float dt)
 	{
 		int i, j, i0, j0, i1, j1;
 		float x, y, s0, t0, s1, t1, dt0;
@@ -57,13 +114,17 @@ namespace simulator {
 					s1*(t0*d0[IX(i1, j0)] + t1*d0[IX(i1, j1)]);
 			}
 		}
-		set_bnd(b, d);	}	void dens_step(float * x, float * x0, float * u, float * v, float diff,
+		set_bnd(b, d);
+	}
+	void dens_step(float * x, float * x0, float * u, float * v, float diff,
 		float dt)
 	{
 		add_source( x, x0, dt);
 		SWAP(x0, x); diffuse(0, x, x0, diff, dt);
 		SWAP(x0, x); advect(0, x, x0, u, v, dt);
-	}	void vel_step(float * u, float * v, float * u0, float * v0,
+	}
+
+	void vel_step(float * u, float * v, float * u0, float * v0,
 		float visc, float dt)
 	{
 		add_source( u, u0, dt); add_source( v, v0, dt);
@@ -73,7 +134,9 @@ namespace simulator {
 		SWAP(u0, u); SWAP(v0, v);
 		advect( 1, u, u0, u0, v0, dt); advect( 2, v, v0, u0, v0, dt);
 		project( u, v, u0, v0);
-	}	void project( float * u, float * v, float * p, float * div)
+	}
+
+	void project( float * u, float * v, float * p, float * div)
 	{
 		int i, j, k;
 		float h;
@@ -102,7 +165,9 @@ namespace simulator {
 			}
 		}
 		set_bnd( 1, u); set_bnd( 2, v);
-	}	void set_bnd(int b, float * x)
+	}
+
+	void set_bnd(int b, float * x)
 	{
 		int i;
 		for (i = 1; i <= N; i++) {
@@ -115,15 +180,57 @@ namespace simulator {
 		x[IX(0, N + 1)] = 0.5*(x[IX(1, N + 1)] + x[IX(0, N)]);
 		x[IX(N + 1, 0)] = 0.5*(x[IX(N, 0)] + x[IX(N + 1, 1)]);
 		x[IX(N + 1, N + 1)] = 0.5*(x[IX(N, N + 1)] + x[IX(N + 1, N)]);
-	}
+	}
+
+
+
+
 
 }
 
-Fire::Fire()
+FireRender::FireRender()
 {
+	GLuint quadGrid = utils::makeQuadGrid(simulator::getDim());
+	Indices quadGridIndices = utils::makeQuadGridIndices(simulator::getDim());
+
+	EBO = quadGridIndices.EBO;
+	VBO = quadGrid;
+	elements = quadGridIndices.elements;
+
+	glGenBuffers(1, &DBO);
+	glBindBuffer(GL_ARRAY_BUFFER, DBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*simulator::getSize(), simulator::getDens(), GL_DYNAMIC_DRAW);
+	
+
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3, (GLvoid*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, DBO);
+	glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 1, (GLvoid*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-
-Fire::~Fire()
+void FireRender::update() {
+	glBindBuffer(GL_ARRAY_BUFFER, DBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * simulator::getSize(), simulator::getDens());
+}
+FireRender::~FireRender()
 {
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+	glDeleteBuffers(1, &DBO);
+	glDeleteVertexArrays(1, &VAO);
 }
+
+void FireRender::draw() {
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, elements, GL_UNSIGNED_INT, 0);
+}
+

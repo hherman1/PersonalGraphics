@@ -22,6 +22,8 @@
 #include "Table.h"
 #include "PingPong.h"
 
+#include "Fire.h"
+
 using namespace glm;
 using namespace std;
 using namespace basicgraphics;
@@ -30,7 +32,42 @@ using namespace basicgraphics;
 int w_width = 1920;
 int w_height = 1080;
 
+struct {
+	vec2 pressCoords;
+	bool down;
+	bool shiftDown;
+	vec2 lastCoords;
+	vec2 currentCoords;
+	vec2 releaseCoords;
 
+	vec2 screenCoords() {
+		return vec2(currentCoords.x / w_width, currentCoords.y / w_height);
+	}
+	vec2 diff() {
+		return currentCoords - lastCoords;
+	}
+} mouse;
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+	mouse.lastCoords = mouse.currentCoords;
+	mouse.currentCoords = vec2(xpos, ypos);
+}
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	if (action == GLFW_RELEASE) {
+		mouse.down = false;
+		mouse.releaseCoords = mouse.currentCoords;
+	}
+	else {
+		mouse.down = true;
+		if (mods & GLFW_MOD_SHIFT) {
+			mouse.shiftDown = true;
+		}
+		else {
+			mouse.shiftDown = false;
+		}
+		mouse.pressCoords = mouse.currentCoords;
+	}
+}
 
 GLFWwindow* init() {
 	glfwInit();
@@ -62,6 +99,9 @@ GLFWwindow* init() {
 	glEnable(GL_DEPTH_TEST);
 
 
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
+
 	return window;
 }
 
@@ -73,7 +113,7 @@ int main(int argc, char** argv)
 {
 	
 	GLFWwindow* window = init();
-	pingponggame::init(window, w_width, w_height);
+	//pingponggame::init(window, w_width, w_height);
 
 	double time = glfwGetTime();
 	cout << "Building shaders. ";
@@ -118,8 +158,12 @@ int main(int argc, char** argv)
 	//test bed
 
 
-	std::shared_ptr<basicgraphics::GLSLProgram> attributelessShader = shaderregistry::makeShader({ "attributeless.vert","attributeless.frag" });
-	utils::Attributeless attributeless;
+	//utils::Attributeless attributeless;
+
+	std::shared_ptr<basicgraphics::GLSLProgram> simulationShader = shaderregistry::makeShader({ "sim.vert","sim.frag" });
+	FireRender fire;
+
+
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -127,16 +171,41 @@ int main(int argc, char** argv)
 
 		float seconds = clock.tick();
 		
-		pingponggame::update(seconds);
+		//pingponggame::update(seconds);
 
 
 		//gorilla.bind();
 
-		glClearColor(0.f,0.f,0.f,0.f);
+		glClearColor(0.f,0.f,1.f,0.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
+		if (mouse.down && mouse.shiftDown) {
+			simulator::inputVel(mouse.screenCoords(), mouse.diff());
+		} else if (mouse.down ) {
+			simulator::inputDens(mouse.screenCoords());
+		}
+		simulator::simulate(seconds);
+		fire.update();
+
+		simulationShader->use();
+		fire.draw();
+		//glDrawElements(GL_TRIANGLES, 4, GL_UNSIGNED_INT, 0);
 
 
+		//glPointSize(10);
+
+		//float test[] = { 1,1,1,1,0,0,1,1,1,1 };
+
+		//glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+		//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * simulator::getSize(), simulator::getDens());
+		////glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(test), test);
+
+		//attributelessShader->use();
+		//attributelessShader->setUniform("dim", simulator::getDim());
+		//attributeless.draw(GL_POINTS, simulator::getSize());
+		////glDrawElements()
+
+		//simulator::simulate(seconds);
 
 
 
@@ -153,32 +222,30 @@ int main(int argc, char** argv)
 		//utils::drawSkybox(pingponggame::camera(), skybox);
 
 		//// draw geometry textures
-		deferredGeomShader->use();
-		deferredGeom.bind();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		standard_shader::setCamera(*deferredGeomShader, pingponggame::camera());
-		standard_shader::setMaterial(*deferredGeomShader, mat);
+		//deferredGeomShader->use();
+		//deferredGeom.bind();
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//standard_shader::setCamera(*deferredGeomShader, pingponggame::camera());
+		//standard_shader::setMaterial(*deferredGeomShader, mat);
 
-		pingponggame::drawGeometry(*deferredGeomShader);
-		deferredGeom.unbind();
+		//pingponggame::drawGeometry(*deferredGeomShader);
+		//deferredGeom.unbind();
 
 		//utils::displayTexture2D(deferredGeom.position());
 
-		Camera testCam(vec3(0, 2 + TABLE_TOP, 2.25), vec3(0, TABLE_TOP, 0.25), (float)w_width / (float)w_height);
+		//Camera testCam(vec3(0, 2 + TABLE_TOP, 2.25), vec3(0, TABLE_TOP, 0.25), (float)w_width / (float)w_height);
 
-		attributelessShader->use();
-		attributelessShader->setUniform("vertexCount", 50);
-		attributelessShader->setUniform("w_width", w_width);
-		attributelessShader->setUniform("w_height", w_height);
-		glActiveTexture(GL_TEXTURE0);
-		deferredGeom.position().bind();
-		attributelessShader->setUniform("positions",0);
+		//attributelessShader->setUniform("vertexCount", 50);
+		//attributelessShader->setUniform("w_width", w_width);
+		//attributelessShader->setUniform("w_height", w_height);
+		//glActiveTexture(GL_TEXTURE0);
+		//deferredGeom.position().bind();
+		//attributelessShader->setUniform("positions",0);
 
 		//attributelessShader->setUniform("transform", testCam.proj() * testCam.view());
-		attributelessShader->setUniform("transform", pingponggame::camera().proj() * pingponggame::camera().view());
+		//attributelessShader->setUniform("transform", pingponggame::camera().proj() * pingponggame::camera().view());
 
 		//glPointSize(1);
-		attributeless.draw(GL_POINTS,w_width*w_height);
 
 		//// render to screen		
 		//shared_ptr<IndexedMesh> square = utils::getSquare();

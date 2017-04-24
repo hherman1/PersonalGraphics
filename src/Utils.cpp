@@ -15,6 +15,52 @@ namespace utils {
 		return clamp(f, min, max) == f;
 	}
 
+	// returns VBO id;
+
+	GLuint makeQuadGrid(int dim) {
+		vector<vec3> vertices(dim*dim);
+		auto index = vertices.begin();
+		for (int i = 0; i < dim; i++) {
+			for (int j = 0; j < dim; j++) {
+				*index = vec3(j*2.f / (dim-1) - 1, i*2.f / (dim-1) - 1, 0);
+				index++;
+			}
+		}
+		GLuint VBO;
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*dim*dim, &vertices[0], GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		return VBO;
+	}
+
+	// returns EBO id;
+	Indices makeQuadGridIndices(int dim) {
+		vector<GLuint> indices((dim-1)*(dim-1)*6);
+		int index = 0;
+		for (int i = 0; i < dim-1; i++) {
+			for (int j = 0; j < dim-1; j++) {
+				indices[index] = i*dim + j;
+				indices[index+1] = (i+1)*dim + j+1;
+				indices[index+2] = (i+1)*dim + j;
+				indices[index+3] = i*dim+j;
+				indices[index+4] = i*dim + j+1;
+				indices[index+5] = (i+1)*dim + j+1;
+				index+=6;
+			}
+		}
+		GLuint EBO;
+		glGenBuffers(1, &EBO);
+		glBindBuffer(GL_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLuint)*6*dim*dim, &indices[0], GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		return {
+			EBO,
+			(dim - 1)*(dim - 1) * 6
+		};
+	}
+
+
 	// The square should be accessed through getSquare, and will auto-load if not loaded. 
 	// It is a 2D square.
 
@@ -251,6 +297,11 @@ namespace utils {
 	Attributeless::~Attributeless()
 	{
 		glDeleteVertexArrays(1, &_VAO);
+	}
+
+	void Attributeless::bind()
+	{
+		glBindVertexArray(_VAO);
 	}
 
 	void Attributeless::draw(GLenum primitive, int numVertices)

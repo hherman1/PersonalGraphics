@@ -9,6 +9,11 @@ struct Vertex {
 	glm::vec2 TexCoords;
 };
 
+struct Indices {
+	GLuint EBO;
+	int elements;
+};
+
 struct Material {
 	glm::vec3 ambient;
 	glm::vec3 diffuse;

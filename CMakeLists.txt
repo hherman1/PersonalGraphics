@@ -22,12 +22,14 @@ set (SHADERS_DEFERRED resources/deferred_geom.vert resources/deferred_geom.frag
 	resources/deferred_light.vert resources/deferred_light.frag)
 set (SHADERS_UTILS 	resources/textureUtil.frag resources/textureUtil.vert
 					resources/cubemapUtil.frag resources/cubemapUtil.vert )
+
+set (SHADERS_SIM 	resources/sim.frag resources/sim.vert )
 set (SHADERS_OTHER
 		resources/unlit.vert
 		resources/unlit.frag
 		resources/attributeless.vert
 		resources/attributeless.frag)
-set (SHADERS ${SHADERS_BASIC} ${SHADERS_DEPTH} ${SHADERS_DEPTH_CUBEMAP} ${SHADERS_UTILS} ${SHADERS_OTHER} ${SHADERS_DEFERRED})
+set (SHADERS ${SHADERS_BASIC} ${SHADERS_DEPTH} ${SHADERS_DEPTH_CUBEMAP} ${SHADERS_UTILS} ${SHADERS_OTHER} ${SHADERS_DEFERRED} ${SHADERS_SIM})
 
 file (GLOB IMAGES resources/*.jpg resources/*.png resources/*.tiff)
 file (GLOB MODELS resources/*.obj)
@@ -106,6 +108,7 @@ source_group("Shaders\\depth" FILES ${SHADERS_DEPTH})
 source_group("Shaders\\depth_cubemap" FILES ${SHADERS_DEPTH_CUBEMAP})
 source_group("Shaders\\utils" FILES ${SHADERS_UTILS})
 source_group("Shaders\\deferred" FILES ${SHADERS_DEFERRED})
+source_group("Shaders\\simulation" FILES ${SHADERS_SIM})
 source_group("Images" FILES ${IMAGES})
 source_group("Models" FILES ${MODELS})
 
