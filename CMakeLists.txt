@@ -117,7 +117,7 @@ source_group("Models" FILES ${MODELS})
 ############################################################
 
 #------------------------------------------
-# Download dependencies
+# Download dependencies		
 #------------------------------------------
 
 set(glfw_checkout_Dir ${PROJECT_SOURCE_DIR}/deps/glfw)
@@ -362,6 +362,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 #attempting to separate the pieces.
 add_library(PersonalGraphics ${ENGINE_SOURCE} ${ENGINE_HEADERS} ${OTHER_HEADERS} ${OTHER_SOURCE})
+add_dependencies(PersonalGraphics glfw assimp SOIL Resources)
 
 add_executable(MacKinection ${KINECT_SOURCE} ${KINECT_HEADERS})
 target_link_libraries(MacKinection PersonalGraphics ${GLFW_LIBRARY} ${ZLIB_LIBRARIES} ${ASSIMP_LIBRARY} ${SOIL_LIBRARY} ${OPENGL_LIBRARIES} ${LIBS_ALL})
