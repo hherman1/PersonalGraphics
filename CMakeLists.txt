@@ -138,6 +138,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set(glfw_CMAKE_ARGS ${glfw_CMAKE_ARGS} -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD="c++11" -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY="libc++" -DGLFW_USE_RETINA=ON)
 endif()
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	#set(glfw_CMAKE_ARGS "${glfw_CMAKE_ARGS} -std=c++11")
+endif()
+
 if (WIN32)
     set(glfw_CMAKE_ARGS ${glfw_CMAKE_ARGS} -DUSE_MSVC_RUNTIME_LIBRARY_DLL=OFF -DGLFW_USE_HYBRID_HPG=ON)
 endif()
@@ -182,6 +186,14 @@ set(assimp_DIR "${assimp_INSTALL_DIR}")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set( assimp_CMAKE_ARGS ${assimp_CMAKE_ARGS} -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD="c++11")
+endif()
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	set(assimp_CMAKE_ARGS "${assimp_CMAKE_ARGS} -std=c++11")
+IF (PKG_CONFIG_FOUND)
+	PKG_CHECK_MODULES(UNZIP minizip)
+ENDIF()
+
 endif()
 
 if (WIN32)
@@ -312,10 +324,10 @@ set (CMAKE_VERBOSE_MAKEFILE TRUE)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
  	 # Linux specific code
-  	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC") 
+  	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11") 
 	find_package(Threads)
 	find_package(X11)
-	set(LIBS_ALL ${LIBS_ALL} ${CMAKE_THREAD_LIBS_INIT} rt Xrandr Xxf86vm Xi m dl ${X11_LIBRARIES})
+	set(LIBS_ALL ${LIBS_ALL} ${CMAKE_THREAD_LIBS_INIT} rt Xrandr Xxf86vm Xi m dl Xcursor Xinerama ${X11_LIBRARIES})
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
