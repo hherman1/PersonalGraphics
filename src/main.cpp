@@ -174,9 +174,10 @@ int main(int argc, char** argv)
 		deferredGeom.position().bind();
 		attributelessShader->setUniform("positions",0);
 
-		attributelessShader->setUniform("transform", testCam.proj() * testCam.view());
+		//attributelessShader->setUniform("transform", testCam.proj() * testCam.view());
+		attributelessShader->setUniform("transform", pingponggame::camera().proj() * pingponggame::camera().view());
 
-		glPointSize(1);
+		//glPointSize(1);
 		attributeless.draw(GL_POINTS,w_width*w_height);
 
 		//// render to screen		

@@ -73,12 +73,14 @@ set (KINECT_SOURCE
 		src/Ball.cpp
 		src/Table.cpp
 		src/PingPong.cpp
+		src/Fire.cpp
 )
 set (KINECT_HEADERS
 		src/Paddle.h
 		src/Ball.h
 		src/Table.h
 		src/PingPong.h
+		src/Fire.h
 )
 set (OTHER_SOURCE 
 		src/Utils.cpp
