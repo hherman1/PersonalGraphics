@@ -22,7 +22,7 @@ namespace simulator {
 
 	static const float visc = .005;
 	static const float diff = 0.00005;
-	static const float temperatureVelocityMultiplier = 0.03;
+	static const float temperatureVelocityMultiplier = 1;
 
 	static float h = 1.f / N;
 
@@ -107,8 +107,8 @@ namespace simulator {
 			}
 		}
 		apply_inputs(dt);
+		addTemperatureVelocity(temp, v_prev);
 		vel_step( u, v, u_prev, v_prev, visc, dt);
-		addTemperatureVelocity(temp, v);
 		obj_step(objects, u, v, u_prev, v_prev);
 		dens_step(dens, dens_prev, u, v, diff, dt);
 		dens_step(temp, temp_prev, u, v, diff, dt);
@@ -153,7 +153,7 @@ namespace simulator {
 	void zeroObjects(float * x, int * objs) {
 		for (int i = 0; i < ARR_DIM; i++) {
 			for (int j = 0; j < ARR_DIM; j++) {
-				x[IX(i, j)] *= !objs[IX(i, j)];
+				x[IX(i, j)] *= !(objs[IX(i-1, j)] || objs[IX(i+1, j)] || objs[IX(i, j-1)] || objs[IX(i, j+1)]);
 			}
 		}
 	}
