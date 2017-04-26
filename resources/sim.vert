@@ -2,11 +2,13 @@
 
 layout (location = 0) in vec3 pos;
 layout (location = 1) in float dens;
+layout (location = 2) in float temp;
+layout (location = 3) in int object;
 
 out vec3 vertColor;
 
 void main() {
-	vertColor = vec3(dens);
+	vertColor = float(1-object) * vec3(dens) * vec3(1,1-temp,1-temp) + float(object) * vec3(0,1,0);
 	gl_Position = vec4(pos,1);
 
 }

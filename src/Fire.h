@@ -7,8 +7,11 @@ namespace simulator {
 	int getSize();
 	int getDim();
 	float * getDens();
+	float * getTemp();
 	void inputDens(glm::vec2 coords);
+	void inputTemp(vec2 coords);
 	void inputVel(vec2 coords, vec2 vel);
+	void inputObjs(vec2 coords);
 	void simulate(float dt);
 
 }
@@ -31,6 +34,8 @@ private:
 	GLuint VBO;
 
 	GLuint DBO; // Density buffer
+	GLuint TBO; // Temperature buffer
+	GLuint OBO; // object buffer
 
 };
 

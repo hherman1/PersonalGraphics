@@ -34,8 +34,10 @@ int w_height = 1080;
 
 struct {
 	vec2 pressCoords;
-	bool down;
-	bool shiftDown;
+	bool down = false;
+	bool shiftDown = false;
+	bool controlDown = false;
+	bool altDown = false;
 	vec2 lastCoords;
 	vec2 currentCoords;
 	vec2 releaseCoords;
@@ -65,6 +67,19 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		else {
 			mouse.shiftDown = false;
 		}
+		if (mods & GLFW_MOD_CONTROL) {
+			mouse.controlDown = true;
+		}
+		else {
+			mouse.controlDown = false;
+		}
+		if (mods & GLFW_MOD_ALT) {
+			mouse.altDown = true;
+		}
+		else {
+			mouse.altDown = false;
+		}
+
 		mouse.pressCoords = mouse.currentCoords;
 	}
 }
@@ -181,7 +196,13 @@ int main(int argc, char** argv)
         
 		if (mouse.down && mouse.shiftDown) {
 			simulator::inputVel(mouse.screenCoords(), mouse.diff());
-		} else if (mouse.down ) {
+		} else if (mouse.down && mouse.controlDown) {
+			simulator::inputTemp(mouse.screenCoords());
+		}
+		else if (mouse.down && mouse.altDown) {
+			simulator::inputObjs(mouse.screenCoords());
+		}
+		else if (mouse.down) {
 			simulator::inputDens(mouse.screenCoords());
 		}
 		simulator::simulate(seconds);
