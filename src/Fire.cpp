@@ -1,13 +1,20 @@
 #include "Fire.h"
 
-#define SIM_DIM 50
+#define SIM_DIM 100
 #define N SIM_DIM 
 #define ARR_DIM (N+2)
 #define IX(i,j) ((i)+(N+2)*(j))
+#define S_IX(sparse) IX((sparse).x,(sparse).y)
 #define SWAP(x0,x) {float *tmp=x0;x0=x;x=tmp;}
 
 
+struct sparse_coords {
+	int x;
+	int y;
+};
+
 using namespace glm;
+using namespace std;
 namespace simulator {
 	static const int size = (N + 2) * (N + 2);
 	static float u[size], v[size], u_prev[size], v_prev[size] = { };
@@ -15,21 +22,27 @@ namespace simulator {
 	static float temp[size], temp_prev[size] = {};
 	static float react[size], react_prev[size] = {};
 
+	static vector<sparse_coords> generators_coords(size);
+	static int generators[size]= {};
+
 	static int objects[size] = { 0 };
 
 	static float u_in[size], v_in[size];
 	static float dens_in[size];
 	static float temp_in[size];
 
-	static const float visc = .005;
+	static const float visc = .001;
 	static const float diff = 0.00005;
-	static const float temperatureVelocityMultiplier = 1000;
-	static const float temperatureHorizontalMultiplier = 2000;
+	static const float temperatureVelocityMultiplier = 10;
+	static const float temperatureHorizontalMultiplier = 60;
+	static const float reactDeterioration = 2;
+
+	static const float genMultiplier = 0.2;
 
 	static float h = 1.f / N;
 
 	static const float inMag = 10000;
-	static const float velMag = 10000;
+	static const float velMag = 200;
 
 	int getSize() {
 		return size;
@@ -40,8 +53,11 @@ namespace simulator {
 	float* getDens() {
 		return dens;
 	}
-	float* getTemp() {
-		return temp;
+	float* getReact() {
+		return react;
+	}
+	int* getGens() {
+		return generators;
 	}
 	int* getObjs() {
 		return objects;
@@ -57,7 +73,9 @@ namespace simulator {
 	void dens_step(float * x, float * x0, float * u, float * v, float diff, float dt);
 	void obj_step(int * objs, float * u, float * v, float * u0, float * v0);
 	void vel_step(float * u, float * v, float * u0, float * v0, float visc, float dt);
+	void gen_step(vector<sparse_coords> coords, float * target, float coeff);
 	void project(float * u, float * v, float * p, float * div);
+	void react_step(float * r, float dt);
 
 	void set_vect(vec2 vec, int x, int y) {
 		u_in[IX(x, y)] = vec.x;
@@ -84,12 +102,27 @@ namespace simulator {
 		int y_coord = ARR_DIM - floor(coords.y*ARR_DIM);
 		objects[IX(x_coord, y_coord)] = 1;//!objects[IX(x_coord, y_coord)];
 	}
+	void inputGens(vec2 coords) {
+		int x_coord = floor(coords.x*ARR_DIM);
+		int y_coord = ARR_DIM - floor(coords.y*ARR_DIM);
+		generators[IX(x_coord, y_coord)] = 1;//!objects[IX(x_coord, y_coord)];
+		bool found = false;
+		for (int i = 0; i < generators_coords.size(); i++) {
+			if (generators_coords[i].x == x_coord && generators_coords[i].y == y_coord) {
+				found = true;
+			}
+		}
+		if (!found) {
+			generators_coords.push_back({ x_coord,y_coord });
+		}
+	}
 
 	void apply_inputs(float dt) {
 		std::fill(dens_prev, dens_prev + size, 0);
 		std::fill(u_prev, u_prev + size, 0);
 		std::fill(v_prev, v_prev + size, 0);
 		std::fill(temp_prev, temp_prev + size, 0);
+		std::fill(react_prev, react_prev + size, 0);
 		add_source(v_prev, v_in, dt);
 		add_source(u_prev, u_in, dt);
 		add_source(dens_prev, dens_in, dt);
@@ -112,10 +145,24 @@ namespace simulator {
 		addTemperatureVelocity(temp, v_prev,u_prev, dt);
 		vel_step( u, v, u_prev, v_prev, visc, dt);
 		obj_step(objects, u, v, u_prev, v_prev);
+		gen_step(generators_coords, temp_prev, 10);
+		gen_step(generators_coords, dens_prev, 10);
+		gen_step(generators_coords, react_prev, 20);
+		//gen_step(objects, u, v, u_prev, v_prev);
+		react_step(react,dt);
 		dens_step(dens, dens_prev, u, v, diff, dt);
-		dens_step(temp, temp_prev, u, v, diff, dt);
+		dens_step(temp, temp_prev, u, v, diff*0.1, dt);
+		dens_step(react, react_prev, u, v, diff*0.1, dt);
 		clear_inputs();
 		//draw_dens( dens);
+	}
+	void react_step(float * r, float dt) {
+		for (int i = 0; i < ARR_DIM; i++) {
+			for (int j = 0; j < ARR_DIM; j++) {
+				r[IX(i, j)] -= dt * reactDeterioration;
+				r[IX(i, j)] *= r[IX(i, j)] >= 0;
+			}
+		}
 	}
 
 	void addTemperatureVelocity(float * T, float * v,float * u, float dt) {
@@ -189,7 +236,13 @@ namespace simulator {
 	void obj_step(int* objs, float * u, float * v, float * u0, float * v0) {
 		zeroObjects(u, objs);
 		zeroObjects(v, objs);
-	//	project(u, v, u0, v0);
+		//	project(u, v, u0, v0);
+	}
+	void gen_step(vector<sparse_coords> coords, float * target,float coeff) {
+		for (int i = 0; i < coords.size(); i++) {
+			float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+			target[S_IX(coords[i])] += coeff * r;
+		}
 	}
 
 	void vel_step(float * u, float * v, float * u0, float * v0,
@@ -269,13 +322,17 @@ FireRender::FireRender()
 	glBindBuffer(GL_ARRAY_BUFFER, DBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*simulator::getSize(), simulator::getDens(), GL_DYNAMIC_DRAW);
 
-	glGenBuffers(1, &TBO);
-	glBindBuffer(GL_ARRAY_BUFFER, TBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*simulator::getSize(), simulator::getTemp(), GL_DYNAMIC_DRAW);
+	glGenBuffers(1, &RBO);
+	glBindBuffer(GL_ARRAY_BUFFER, RBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*simulator::getSize(), simulator::getReact(), GL_DYNAMIC_DRAW);
 
 	glGenBuffers(1, &OBO);
 	glBindBuffer(GL_ARRAY_BUFFER, OBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLint)*simulator::getSize(), simulator::getObjs(), GL_DYNAMIC_DRAW);
+
+	glGenBuffers(1, &GBO);
+	glBindBuffer(GL_ARRAY_BUFFER, GBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLint)*simulator::getSize(), simulator::getGens(), GL_DYNAMIC_DRAW);
 
 
 	glGenVertexArrays(1, &VAO);
@@ -293,7 +350,7 @@ FireRender::FireRender()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, TBO);
+	glBindBuffer(GL_ARRAY_BUFFER, RBO);
 	glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 1, (GLvoid*)0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -301,23 +358,31 @@ FireRender::FireRender()
 	glBindBuffer(GL_ARRAY_BUFFER, OBO);
 	glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, sizeof(GLint) * 1, (GLvoid*)0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glEnableVertexAttribArray(4);
+	glBindBuffer(GL_ARRAY_BUFFER, GBO);
+	glVertexAttribPointer(4, 1, GL_INT, GL_FALSE, sizeof(GLint) * 1, (GLvoid*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void FireRender::update() {
 	glBindBuffer(GL_ARRAY_BUFFER, DBO);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * simulator::getSize(), simulator::getDens());
-	glBindBuffer(GL_ARRAY_BUFFER, TBO);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * simulator::getSize(), simulator::getTemp());
+	glBindBuffer(GL_ARRAY_BUFFER, RBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * simulator::getSize(), simulator::getReact());
 	glBindBuffer(GL_ARRAY_BUFFER, OBO);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLint) * simulator::getSize(), simulator::getObjs());
+	glBindBuffer(GL_ARRAY_BUFFER, GBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLint) * simulator::getSize(), simulator::getGens());
 }
 FireRender::~FireRender()
 {
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
 	glDeleteBuffers(1, &DBO);
-	glDeleteBuffers(1, &TBO);
+	glDeleteBuffers(1, &RBO);
 	glDeleteBuffers(1, &OBO);
+	glDeleteBuffers(1, &GBO);
 	glDeleteVertexArrays(1, &VAO);
 }
 

@@ -194,7 +194,10 @@ int main(int argc, char** argv)
 		glClearColor(0.f,0.f,1.f,0.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-		if (mouse.down && mouse.shiftDown) {
+		if (mouse.down && mouse.shiftDown && mouse.altDown) {
+			simulator::inputGens(mouse.screenCoords());
+		}
+		else if (mouse.down && mouse.shiftDown) {
 			simulator::inputVel(mouse.screenCoords(), mouse.diff());
 		} else if (mouse.down && mouse.controlDown) {
 			simulator::inputTemp(mouse.screenCoords());
