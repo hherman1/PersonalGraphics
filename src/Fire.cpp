@@ -13,6 +13,7 @@ namespace simulator {
 	static float u[size], v[size], u_prev[size], v_prev[size] = { };
 	static float dens[size], dens_prev[size] = {};
 	static float temp[size], temp_prev[size] = {};
+	static float react[size], react_prev[size] = {};
 
 	static int objects[size] = { 0 };
 
@@ -22,7 +23,8 @@ namespace simulator {
 
 	static const float visc = .005;
 	static const float diff = 0.00005;
-	static const float temperatureVelocityMultiplier = 1;
+	static const float temperatureVelocityMultiplier = 1000;
+	static const float temperatureHorizontalMultiplier = 2000;
 
 	static float h = 1.f / N;
 
@@ -45,10 +47,10 @@ namespace simulator {
 		return objects;
 	}
 
-
+	
 	void set_bnd(int b, float * x);
 	void simulate(float dt);
-	void addTemperatureVelocity(float * T, float * v);
+	void addTemperatureVelocity(float * T, float * v,float * u, float dt);
 	void add_source(float * x, float * s, float dt);
 	void diffuse(int b, float * x, float * x0, int * objs, float diff, float dt);
 	void advect(int b, float * d, float * d0, float * u, float * v, float dt);
@@ -107,7 +109,7 @@ namespace simulator {
 			}
 		}
 		apply_inputs(dt);
-		addTemperatureVelocity(temp, v_prev);
+		addTemperatureVelocity(temp, v_prev,u_prev, dt);
 		vel_step( u, v, u_prev, v_prev, visc, dt);
 		obj_step(objects, u, v, u_prev, v_prev);
 		dens_step(dens, dens_prev, u, v, diff, dt);
@@ -116,10 +118,12 @@ namespace simulator {
 		//draw_dens( dens);
 	}
 
-	void addTemperatureVelocity(float * T, float * v) {
+	void addTemperatureVelocity(float * T, float * v,float * u, float dt) {
 		for (int i = 0; i < ARR_DIM; i++) {
 			for (int j = 0; j < ARR_DIM; j++) {
-				v[IX(i, j)] += T[IX(i, j)] * temperatureVelocityMultiplier;
+				v[IX(i, j)] += T[IX(i, j)] * temperatureVelocityMultiplier * dt;
+				float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+				u[IX(i, j)] += T[IX(i, j)] * temperatureHorizontalMultiplier* dt*(r*2-1);
 			}
 		}
 	}
@@ -136,7 +140,7 @@ namespace simulator {
 		for (k = 0; k<20; k++) {
 			for (i = 1; i <= N; i++) {
 				for (j = 1; j <= N; j++) {
-					x[IX(i, j)] = (x0[IX(i, j)] 
+					x[IX(i, j)] = !objs[IX(i,j)] * (x0[IX(i, j)] 
 						+ a*
 						(!objs[IX(i-1,j)] * x[IX(i - 1, j)] 
 							+ !objs[IX(i + 1, j)] * x[IX(i + 1, j)]
