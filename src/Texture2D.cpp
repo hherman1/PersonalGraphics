@@ -18,6 +18,14 @@ int Texture2D::width() {
 int Texture2D::height() {
 	return _height;
 }
+void Texture2D::setWidth(int w)
+{
+	_width = w;
+}
+void Texture2D::setHeight(int h)
+{
+	_height = h;
+}
 // bind texture first!!!
 // generates texture and its mipmaps. Supplied texture is forced to be level 0. 
 void Texture2D::loadImage(string filename) {

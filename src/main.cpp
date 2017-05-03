@@ -84,6 +84,22 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	}
 }
 
+int actions[1024];
+bool keys[1024];
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+	// When a user presses the escape key, we set the WindowShouldClose property to true, 
+	// closing the application
+	actions[key] = action;
+	if (action == GLFW_PRESS)
+		keys[key] = true;
+	else if (action == GLFW_RELEASE)
+		keys[key] = false;
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+}
+
 GLFWwindow* init() {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -116,7 +132,7 @@ GLFWwindow* init() {
 
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
-
+	glfwSetKeyCallback(window, key_callback);
 	return window;
 }
 
@@ -178,6 +194,8 @@ int main(int argc, char** argv)
 	std::shared_ptr<basicgraphics::GLSLProgram> simulationShader = shaderregistry::makeShader({ "sim.vert","sim.frag" });
 	FireRender fire;
 
+	int showGenerators = 1;
+
 
 
 	while (!glfwWindowShouldClose(window))
@@ -186,7 +204,7 @@ int main(int argc, char** argv)
 
 		float seconds = clock.tick();
 		
-		//pingponggame::update(seconds);
+		//pingponggame::update(seconds);	
 
 
 		//gorilla.bind();
@@ -208,11 +226,23 @@ int main(int argc, char** argv)
 		else if (mouse.down) {
 			simulator::inputDens(mouse.screenCoords());
 		}
+
+		if (actions[GLFW_KEY_G] == GLFW_PRESS) {
+			showGenerators = !showGenerators;
+		}
+
 		simulator::simulate(seconds);
 		fire.update();
 
 		simulationShader->use();
+		simulationShader->setUniform("showGenerators", showGenerators);
 		fire.draw();
+
+		//fireSim.simulate(seconds);
+
+		/*glViewport(0, 0, w_width, w_height);
+		utils::displayTexture2D(fireSim.dens);*/
+
 		//glDrawElements(GL_TRIANGLES, 4, GL_UNSIGNED_INT, 0);
 
 

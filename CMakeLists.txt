@@ -23,7 +23,7 @@ set (SHADERS_DEFERRED resources/deferred_geom.vert resources/deferred_geom.frag
 set (SHADERS_UTILS 	resources/textureUtil.frag resources/textureUtil.vert
 					resources/cubemapUtil.frag resources/cubemapUtil.vert )
 
-set (SHADERS_SIM 	resources/sim.frag resources/sim.vert )
+set (SHADERS_SIM 	resources/sim.frag resources/sim.vert)
 set (SHADERS_OTHER
 		resources/unlit.vert
 		resources/unlit.frag

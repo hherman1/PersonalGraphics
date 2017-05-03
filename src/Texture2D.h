@@ -11,6 +11,8 @@ public:
 	static void unbind();
 	int width();
 	int height();
+	void setWidth(int w);
+	void setHeight(int h);
 	void loadImage(std::string filename);
 	void whiteTexture();
 	~Texture2D();

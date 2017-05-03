@@ -151,8 +151,8 @@ namespace simulator {
 		//gen_step(objects, u, v, u_prev, v_prev);
 		react_step(react,dt);
 		dens_step(dens, dens_prev, u, v, diff, dt);
-		dens_step(temp, temp_prev, u, v, diff*0.1, dt);
-		dens_step(react, react_prev, u, v, diff*0.1, dt);
+		dens_step(temp, temp_prev, u, v, 0, dt);
+		dens_step(react, react_prev, u, v, 0, dt);
 		clear_inputs();
 		//draw_dens( dens);
 	}
